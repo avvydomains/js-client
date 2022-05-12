@@ -1,7 +1,6 @@
 import poseidon  from 'circomlibjs/src/poseidon.js'
 import { ethers } from 'ethers'
 
-
 /*
   converts a number into a bitstring
   algorithm mirrors that of github.com/iden3/circomlib
@@ -133,7 +132,7 @@ const preimageSignal2AsciiArray = (arr) => {
 /* runs a preimageSignal through the poseidon hash */
 export const preimageSignal2HashSignal = async (num) => {
   // circomlib 0.1.0 implementation
-  // const poseidon = await buildPoseidon.default()
+  // const poseidon = await buildPoseidon()
   // const arr = poseidon(num)
   // const hashed = poseidon.F.toObject(arr)
 

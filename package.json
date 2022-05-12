@@ -11,7 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "circomlibjs": "^0.1.2",
+    "circomlibjs": "^0.0.8",
     "ethers": "^5.5.4"
   },
   "devDependencies": {
@@ -20,7 +20,7 @@
     "mocha": "^10.0.0"
   },
   "exports": {
-    ".": "./index.js"
+    ".": "./src/index.js"
   },
   "alias": {
     "assert": "assert",
