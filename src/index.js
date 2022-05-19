@@ -9,6 +9,10 @@ const ethersProvider = function (provider, chainId) {
 
   return {
     contracts,
+    lookupHash: async (hash) => {
+      const result = await contracts.RainbowTableV1.lookup(hash)
+      return result
+    },
     getResolver: async (domain, hash) => {
       const resolver = await contracts.ResolverRegistryV1.get(domain, hash)
       return resolver
@@ -56,6 +60,7 @@ const Name = function (name, provider) {
   }
 
   return {
+    name,
     resolve: async (key) => {
       let resolveMethod
       
@@ -86,6 +91,27 @@ const Name = function (name, provider) {
   }
 }
 
+// represents the hash of a Name in the system
+const Hash = function (hash, provider) {
+  
+  // attempt to look up the hash from the API
+  const lookup = async () => {
+    let signal
+    try {
+      signal = await provider.lookupHash(hash)
+    } catch (err) {
+      // hash not revealed
+      return null
+    }
+    const preimage = await utils.decodeNameHashInputSignals(signal)
+    return Name(preimage, provider)
+  }
+
+  return {
+    lookup,
+  }
+}
+
 const AVVY = function (_provider, _opts) {
 
   // optionally pass chainId
@@ -99,10 +125,19 @@ const AVVY = function (_provider, _opts) {
   const name = (n) => {
     return Name(n, provider)
   }
+
+  const hash = (h) => {
+    return Hash(h, provider)
+  }
   
   return {
     name,
-    contracts: provider.contracts
+    hash,
+    contracts: provider.contracts,
+
+    blocklist,
+    utils,
+    RECORDS: records,
   }
 }
 
