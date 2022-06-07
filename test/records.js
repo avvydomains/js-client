@@ -7,6 +7,10 @@ describe('Records', async () => {
     expect(AVVY.RECORDS.X_CHAIN).to.equal(1)
   })
 
+  it('should export CONTENT record', async () => {
+    expect(AVVY.RECORDS.CONTENT).to.equal(8)
+  })
+
   it('should list records', async () => {
     const LIST = AVVY.RECORDS._LIST
     expect(LIST[0].key).to.equal(1)
