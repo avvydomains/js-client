@@ -1,4 +1,5 @@
 import fs from 'fs'
+import { cp } from 'fs/promises'
 import path from 'path'
 
 const buildBlocklist = async (clientCommonDir) => {
@@ -10,6 +11,10 @@ const buildBlocklist = async (clientCommonDir) => {
   const fileContent = `
     export default ${JSON.stringify(items)};
   `
+  fs.mkdirSync(
+    path.join(process.cwd(), 'lib'),
+    {recursive: true}
+  )
   fs.writeFileSync(
     path.join('lib', 'blocklist.js'), 
     fileContent, 
@@ -74,8 +79,33 @@ const buildRecords = async (clientCommonDir) => {
   )
 }
 
+const buildDist = async () => {
+  const distDir = path.join(process.cwd(), 'dist')
+  fs.mkdirSync(
+    distDir,
+    { recursive: true }
+  )
+  await cp(
+    path.join(process.cwd(), 'src'),
+    path.join(distDir, 'src'),
+    { recursive: true }
+  )
+  await cp(
+    path.join(process.cwd(), 'lib'),
+    path.join(distDir, 'lib'),
+    { recursive: true }
+  )
+}
+
 const main = async () => {
-  let clientCommonDir = process.env.AVVY_CLIENT_COMMON || path.join(process.cwd(), 'client-common')
+  let clientCommonDir; 
+  let projectCommon = path.join(process.cwd(), 'client-common')
+  let isDist = process.argv[2] === 'dist'
+  if (isDist) {
+    clientCommonDir = projectCommon
+  } else {
+    clientCommonDir = process.env.AVVY_CLIENT_COMMON || projectCommon
+  }
   await buildBlocklist(clientCommonDir)
   await buildContracts(clientCommonDir)
   await buildRecords(clientCommonDir)

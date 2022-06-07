@@ -1,7 +1,7 @@
 # Usage
 
 ```
-import AVVY from '@avvy/js-client'
+import AVVY from '@avvy/client'
 import { ethers } from 'ethers'
 
 const main = async () => {
@@ -13,6 +13,31 @@ const main = async () => {
 }
 
 main()
+```
+
+# Installation
+
+```
+npm i --save @avvy/client
+```
+
+## Webpack
+
+If you're using webpack, you'll have trouble with importing some unsupported libs. A quick bypass is to add the following to `resolve.fallback` in your webpack config:
+
+```
+{
+  os: false,
+  crypto: false,
+}
+```
+
+You may also need to run `npm i --save-dev process assert`, and add the following to `plugins` in your webpack config:
+
+```
+new webpack.ProvidePlugin({
+  process: 'process/browser',
+})
 ```
 
 # Development

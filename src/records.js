@@ -6,5 +6,6 @@ const RECORDS = records.records.reduce((sum, curr) => {
 }, {})
 
 RECORDS._standardKeyList = records.records.map(record => record.key)
+RECORDS._LIST = records.records
 
 export default RECORDS
