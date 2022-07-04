@@ -29,4 +29,11 @@ describe('Names', async () => {
     const expected = 'CUSTOM_VALUE'
     expect(address).to.equal(expected)
   })
+
+  it('should resolve a record on a subdomain, by getting the parent resolver', async () => {
+    const name = 'sub.' + TEST_NAME
+    const address = await avvy.name(name).resolve(AVVY.RECORDS.EVM)
+    const expected = '0x000000000000000000000000000000000000dead'
+    expect(address.toLowerCase()).to.equal(expected)
+  })
 })
