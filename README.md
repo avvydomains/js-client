@@ -1,11 +1,15 @@
 # Usage
 
+## Quick start - Forward Resolution
+
+Turn a .avax name into an EVM / C-Chain address:
+
 ```
 import AVVY from '@avvy/client'
 import { ethers } from 'ethers'
 
 const main = async () => {
-  const PROVIDER_URL = 'https://your-provider-url.com'
+  const PROVIDER_URL = 'https://api.avax.network/ext/bc/C/rpc'
   const provider = new ethers.providers.JsonRpcProvider(PROVIDER_URL)
   const avvy = new AVVY(provider)
   const address = await avvy.name('avvydomains.avax').resolve(AVVY.RECORDS.EVM)
