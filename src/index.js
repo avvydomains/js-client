@@ -9,6 +9,10 @@ const ethersProvider = function (provider, chainId) {
 
   return {
     contracts,
+    getExpiry: async (hash) => {
+      const expiry = await contracts.Domain.getDomainExpiry(hash)
+      return parseInt(expiry.toString())
+    },
     lookupHash: async (hash) => {
       const result = await contracts.RainbowTableV1.lookup(hash)
       return result
@@ -91,6 +95,15 @@ const Name = function (name, provider) {
       let split = name.split('.')
       let resolver 
       let domain = await getDomain() // this is the domain with 2 labels, e.g. name.avax
+      let expiresAt = await provider.getExpiry(domain.hash)
+      if (expiresAt === 0) {
+        throw "Domain has not been registered"
+      }
+      const now = parseInt(Date.now() / 1000)
+      if (now >= expiresAt) {
+        throw "Domain registration is expired"
+      }
+
       while (split.length >= 2) {
         let subdomain = split.join('.')
         let hash = await utils.nameHash(subdomain)

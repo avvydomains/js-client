@@ -36,4 +36,15 @@ describe('Names', async () => {
     const expected = '0x000000000000000000000000000000000000dead'
     expect(address.toLowerCase()).to.equal(expected)
   })
+
+  it('should fail to resolve a record on an expired domain', async () => {
+    const name = 'avvy-client-common-expired.avax'
+    
+    try {
+      await avvy.name(name).resolve(AVVY.RECORDS.X_CHAIN)
+      throw "This should not resolve.."
+    } catch (err) {
+      expect(err).to.equal('Domain registration is expired')
+    }
+  })
 })
