@@ -1,6 +1,6 @@
 {
   "name": "@avvy/client",
-  "version": "2.1.9",
+  "version": "2.1.10",
   "description": "",
   "main": "src/index.js",
   "type": "module",
