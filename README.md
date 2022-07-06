@@ -27,6 +27,10 @@ const main = async () => {
 main()
 ```
 
+**IMPORTANT: XSS / Code Injection Risk**
+
+The client does not perform any validation or sanitization of resolved values. Integrators should assume all values retrieved from `.resolve()` are untrusted and potentially malicious. 
+
 ## Forward Resolution & Record Types
 
 `avvy.name('avvydomains.avax').resolve(key)` is the method to perform forward resolution. `key` can be:
