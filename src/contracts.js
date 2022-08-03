@@ -27,6 +27,15 @@ const ethersLoader = (signerOrProvider, chainId) => {
         iface,
         signerOrProvider
       )
+    },
+
+    getEVMReverseResolverContract: (address) => {
+      const iface = contracts.EVMReverseResolverV1.interface
+      return new ethers.Contract(
+        address,
+        iface,
+        signerOrProvider
+      )
     }
   }
 }

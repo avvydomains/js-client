@@ -27,6 +27,27 @@ const main = async () => {
 main()
 ```
 
+**Reverse Resolution**
+
+Turn an EVM / C-Chain address into a .avax name:
+
+```javascript
+import AVVY from '@avvy/client'
+import { ethers } from 'ethers'
+
+const main = async () => {
+  const PROVIDER_URL = 'https://api.avax.network/ext/bc/C/rpc'
+  const provider = new ethers.providers.JsonRpcProvider(PROVIDER_URL)
+  const avvy = new AVVY(provider)
+  const hash = await avvy.reverse(AVVY.RECORDS.EVM, '0x797ac669a1908ca68cd9854994345f570495541a')
+  const name = await hash.lookup()
+  console.log(name.name) // 'avvydomains.avax'
+}
+
+main()
+
+```
+
 **IMPORTANT: XSS / Code Injection Risk**
 
 The client does not perform any validation or sanitization of resolved values. Integrators should assume all values retrieved from `.resolve()` are untrusted and potentially malicious. 

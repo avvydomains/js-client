@@ -30,6 +30,14 @@ const ethersProvider = function (provider, chainId) {
       const resolverContract = contractLoader.getResolverContract(resolverAddress)
       const result = await resolverContract.resolve(datasetId, hash, key)
       return result
+    },
+    reverseResolveEVM: async (key, value) => {
+      const address = await contracts.ReverseResolverRegistryV1.getResolver(key)
+      const contract = contractLoader.getEVMReverseResolverContract(address)
+      return await contract.get(value)
+    },
+    getReverseResolverAddress: async (key) => {
+      return await contracts.ReverseResolverRegistryV1.getResolver(key)
     }
   }
 }
@@ -138,6 +146,7 @@ const Hash = function (hash, provider) {
   }
 
   return {
+    hash,
     lookup,
   }
 }
@@ -159,10 +168,28 @@ const AVVY = function (_provider, _opts) {
   const hash = (h) => {
     return Hash(h, provider)
   }
+
+  const reverse = async (key, value) => {
+    let method
+    switch (key) {
+      case records.EVM:
+        method = 'reverseResolveEVM'
+        break
+    }
+    if (!method) throw "Reverse resolver is not implemented for this standard key"
+    let result
+    try {
+      result = await provider[method](key, value)
+    } catch (err) {
+      return null
+    }
+    return Hash(result.hash, provider)
+  }
   
   return {
     name,
     hash,
+    reverse,
     contracts: provider.contracts,
 
     blocklist,
