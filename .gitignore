@@ -4,4 +4,5 @@ node_modules
 *.swo
 .directory
 lib
+.parcel-cache
 
