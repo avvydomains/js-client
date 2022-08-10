@@ -30,13 +30,6 @@ describe('Names', async () => {
     expect(address).to.equal(expected)
   })
 
-  it('should resolve a record on a subdomain, by getting the parent resolver', async () => {
-    const name = 'sub.' + TEST_NAME
-    const address = await avvy.name(name).resolve(AVVY.RECORDS.EVM)
-    const expected = '0x000000000000000000000000000000000000dead'
-    expect(address.toLowerCase()).to.equal(expected)
-  })
-
   it('should fail to resolve a record on an expired domain', async () => {
     const name = 'avvy-client-common-expired.avax'
     
@@ -45,6 +38,17 @@ describe('Names', async () => {
       throw "This should not resolve.."
     } catch (err) {
       expect(err).to.equal('Domain registration is expired')
+    }
+  })
+
+  it('should fail gracefully when a record does not have a resolver set', async () => {
+    const name = 'avvy-client-common-no-resolver.avax'
+    
+    try {
+      await avvy.name(name).resolve(AVVY.RECORDS.X_CHAIN)
+      throw "This should not resolve.."
+    } catch (err) {
+      expect(err).to.equal('No resolver set')
     }
   })
 })
