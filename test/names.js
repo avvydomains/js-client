@@ -15,7 +15,7 @@ describe('Names', async () => {
     })
   })
 
-  it('should resolve a standard records', async () => {
+  it('should resolve a standard record', async () => {
     const address = await avvy.name(TEST_NAME).resolve(AVVY.RECORDS.X_CHAIN)
 
     // this is the sender of the first X-Chain transaction, after genesis

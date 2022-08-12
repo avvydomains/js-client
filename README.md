@@ -83,20 +83,31 @@ https://parceljs.org/ works nicely out of the box.
 
 ## Webpack
 
-If you're using webpack, you'll have trouble with importing some unsupported libs. A quick bypass is to add the following to `resolve.fallback` in your webpack config:
+If you're using webpack, you'll have trouble with importing some unsupported libs. Here 
+
+You'll probably need to install the Buffer polyfill: `npm i --save-dev buffer`
+
+ A quick bypass is to add the following to `resolve.fallback` in your webpack config:
 
 ```
 {
   os: false,
   crypto: false,
+  buffer: require.resolve('buffer/'),
+  assert: require.resolve('assert'),
 }
 ```
 
-You may also need to run `npm i --save-dev process assert`, and add the following to `plugins` in your webpack config:
+You may also need to add the following to the `plugins` section in your webpack config:
 
 ```
-new webpack.ProvidePlugin({
-  process: 'process/browser',
+new webpack.DefinePlugin({
+  process: {
+    browser: true
+  }
+}),
+new webpack.ProviderPlugin({
+  Buffer: ['buffer', 'Buffer'],
 })
 ```
 

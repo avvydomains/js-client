@@ -1,5 +1,12 @@
-import poseidon  from 'circomlibjs/src/poseidon.js'
+
 import { ethers } from 'ethers'
+
+// circomlib 0.8.0 implementation
+// import poseidon  from 'circomlibjs/src/poseidon.js'
+
+// circomlib 0.1.0 implementation
+import { buildPoseidon } from 'circomlibjs'
+const poseidon = await buildPoseidon()
 
 /*
   converts a number into a bitstring
@@ -132,12 +139,12 @@ const preimageSignal2AsciiArray = (arr) => {
 /* runs a preimageSignal through the poseidon hash */
 export const preimageSignal2HashSignal = async (num) => {
   // circomlib 0.1.0 implementation
-  // const poseidon = await buildPoseidon()
-  // const arr = poseidon(num)
-  // const hashed = poseidon.F.toObject(arr)
+  const arr = poseidon(num)
+  const hashed = poseidon.F.toObject(arr)
 
   // circomlib 0.0.8 implementation
-  const hashed = poseidon(num)
+  //const hashed = poseidon(num)
+  
   return hashed
 }
 
