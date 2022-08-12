@@ -4,6 +4,10 @@
   "description": "",
   "main": "src/index.js",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/avvydomains/js-client.git"
+  },
   "scripts": {
     "test": "npx mocha test/* --timeout 10000",
     "build": "rm -rf lib && node build.js",
