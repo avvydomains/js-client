@@ -6,7 +6,9 @@ import { ethers } from 'ethers'
 
 // circomlib 0.1.0 implementation
 import { buildPoseidon } from 'circomlibjs'
-const poseidon = await buildPoseidon()
+let poseidon
+const poseidonInit = buildPoseidon()
+poseidonInit.then(_p => poseidon = _p)
 
 /*
   converts a number into a bitstring
@@ -139,6 +141,7 @@ const preimageSignal2AsciiArray = (arr) => {
 /* runs a preimageSignal through the poseidon hash */
 export const preimageSignal2HashSignal = async (num) => {
   // circomlib 0.1.0 implementation
+  await poseidonInit
   const arr = poseidon(num)
   const hashed = poseidon.F.toObject(arr)
 
