@@ -106,7 +106,7 @@ new webpack.DefinePlugin({
     browser: true
   }
 }),
-new webpack.ProviderPlugin({
+new webpack.ProvidePlugin({
   Buffer: ['buffer', 'Buffer'],
 })
 ```
