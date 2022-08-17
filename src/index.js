@@ -162,13 +162,13 @@ const AVVY = function (_provider, _opts) {
     let method
     switch (key) {
       case records.EVM:
-        method = 'reverseResolveEVM'
+        method = provider.reverseResolveEVM
         break
     }
     if (!method) throw "Reverse resolver is not implemented for this standard key"
     let result
     try {
-      result = await provider[method](key, value)
+      result = await method(key, value)
     } catch (err) {
       return null
     }
