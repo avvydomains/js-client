@@ -24,6 +24,15 @@ describe('Names', async () => {
     expect(address).to.equal(expected)
   })
 
+  it('should resolve regardless of casing', async () => {
+    const address = await avvy.name(TEST_NAME.toUpperCase()).resolve(AVVY.RECORDS.X_CHAIN)
+
+    // this is the sender of the first X-Chain transaction, after genesis
+    // see https://avascan.info/blockchain/x/tx/23y4DfgdAPj3teuJzrEfSXZkvmDpwYSbrmVHB82oLJGcMbXU8U
+    const expected = 'x-avax13fd740ykwc5peewmkcgu8r9nmnhns5gpdrgfjy'
+    expect(address).to.equal(expected)
+  })
+
   it('should resolve a custom record', async () => {
     const address = await avvy.name(TEST_NAME).resolve('CUSTOM_KEY')
     const expected = 'CUSTOM_VALUE'

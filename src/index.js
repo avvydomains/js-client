@@ -45,6 +45,10 @@ const ethersProvider = function (provider, chainId) {
 // represents a Name in the system
 const Name = function (name, provider) {
 
+  // lowercase the name. if someone passes in NAME.avax
+  // that is equivalent to name.avax
+  name = name.toLowerCase()
+
   // the namespace is the first label of a name
   const getNamespace = async () => {
     const split = name.split('.')
