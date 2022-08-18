@@ -1,3 +1,7 @@
+# Introduction
+
+The Avvy Domains Javascript client provides essential functionality for interacting with .avax domains.
+
 # Installation
 
 ```
