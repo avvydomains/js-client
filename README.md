@@ -43,7 +43,7 @@ const main = async () => {
   const PROVIDER_URL = 'https://api.avax.network/ext/bc/C/rpc'
   const provider = new ethers.providers.JsonRpcProvider(PROVIDER_URL)
   const avvy = new AVVY(provider)
-  const hash = await avvy.reverse(AVVY.RECORDS.EVM, '0x797ac669a1908ca68cd9854994345f570495541a')
+  const hash = await avvy.reverse(AVVY.RECORDS.EVM, '0x9BC4e7C1Fa4Ca66f6B2F4B6F446Dad80Ec541983')
   const name = await hash.lookup()
   console.log(name.name) // 'avvydomains.avax'
 }
