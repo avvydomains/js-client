@@ -1,17 +1,19 @@
 {
   "name": "@avvy/client",
-  "version": "2.4.1",
+  "version": "2.4.2",
   "description": "",
   "main": "src/index.js",
   "type": "module",
+  "types": "types/src/index.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/avvydomains/js-client.git"
   },
   "scripts": {
     "test": "npx mocha test/* --timeout 10000",
-    "build": "rm -rf lib && node build.js",
-    "prepare": "npm run build"
+    "build": "rm -rf lib && rm -rf types && node build.js && npm run gentypes",
+    "prepare": "npm run build",
+    "gentypes": "npx -p typescript tsc src/index.js --declaration --allowJs --emitDeclarationOnly --outDir types"
   },
   "author": "",
   "license": "ISC",
@@ -20,9 +22,11 @@
     "ethers": "^5.5.4"
   },
   "devDependencies": {
+    "@types/node": "^18.7.15",
     "assert": "^2.0.0",
     "chai": "^4.3.6",
-    "mocha": "^10.0.0"
+    "mocha": "^10.0.0",
+    "typescript": "^4.8.2"
   },
   "exports": {
     ".": "./src/index.js"
