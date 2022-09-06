@@ -12,7 +12,7 @@ npm i --save @avvy/client
 
 ## Quick start
 
-**Forward Resolution**
+### Forward Resolution
 
 Turn a .avax name into an EVM / C-Chain address:
 
@@ -31,7 +31,7 @@ const main = async () => {
 main()
 ```
 
-**Reverse Resolution**
+### Reverse Resolution
 
 Turn an EVM / C-Chain address into a .avax name:
 
@@ -50,6 +50,25 @@ const main = async () => {
 
 main()
 
+```
+
+Given an ERC721 token ID, retrieve the associated .avax name via reverse resolution
+
+```javascript
+import AVVY from '@avvy/client'
+import { ethers } from 'ethers'
+
+const main = async () => {
+  const PROVIDER_URL = 'https://api.avax.network/ext/bc/C/rpc'
+  const provider = new ethers.providers.JsonRpcProvider(PROVIDER_URL)
+  const avvy = new AVVY(provider)
+  const tokenId = '6020961683474433630417776251679104264796158969684372136738248890876527059923'
+  const hash = avvy.hash(tokenId)
+  const name = await hash.lookup()
+  console.log(name.name) // 'avvydomains.avax'
+}
+
+main()
 ```
 
 **IMPORTANT: XSS / Code Injection Risk**
