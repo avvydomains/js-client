@@ -29,7 +29,8 @@
     "typescript": "^4.8.2"
   },
   "exports": {
-    ".": "./src/index.js"
+    ".": "./src/index.js",
+    "./package.json": "./package.json"
   },
   "alias": {
     "assert": "assert",
