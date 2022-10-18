@@ -149,4 +149,4 @@ new webpack.ProvidePlugin({
 To connect the client to non-mainnet chains:
 
 1. Make sure that the `client-common` library has contracts for the chain ID you want to connect to
-2. Initialize using `const avvy = new AVVY(provider, { chainId: 31337 })` (substitute 31337 with your chainId)
+2. Initialize using `const avvy = new AVVY(provider, { chainId: 31337 })` (substitute 31337 with your chainId) 
