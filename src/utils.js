@@ -5,7 +5,7 @@ import { ethers } from 'ethers'
 // import poseidon  from 'circomlibjs/src/poseidon.js'
 
 // circomlib 0.1.0 implementation
-import { buildPoseidon } from 'circomlibjs'
+import { buildPoseidon } from 'circomlibjs/src/poseidon_wasm.js'
 let poseidon
 const poseidonInit = buildPoseidon()
 poseidonInit.then(_p => poseidon = _p)
