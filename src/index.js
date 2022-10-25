@@ -162,6 +162,9 @@ const AVVY = function (_provider, _opts) {
   // optionally pass chainId
   const opts = _opts || {}
   const chainId = opts.chainId || 43114
+
+  // optionally, pass poseidon callback
+  const _utils = utils(_opts.poseidon)
   
   // we'll support ethers for now. later,
   // we can add support for web3
@@ -199,13 +202,13 @@ const AVVY = function (_provider, _opts) {
     contracts: provider.contracts,
 
     blocklist,
-    utils,
+    utils: _utils,
     RECORDS: records,
   }
 }
 
 AVVY.blocklist = blocklist
 AVVY.RECORDS = records
-AVVY.utils = utils
+AVVY.utils = utils()
 
 export default AVVY
