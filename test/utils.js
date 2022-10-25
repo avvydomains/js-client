@@ -25,4 +25,10 @@ describe('Utils', async () => {
     const hash = await avvy.utils.nameHash(TEST_NAME)
     expect(hash).to.equal(0)
   })
+
+  it('should handle instantiation without options', async () => {
+    const avvy = new AVVY(provider)
+    const hash = await avvy.utils.nameHash(TEST_NAME)
+    expect(hash.toString()).to.equal('5009886810970053750228119498024191690423831754312784118430229935127343039646')
+  })
 })

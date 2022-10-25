@@ -48,7 +48,7 @@ const AVVY = function (_provider, _opts) {
   const chainId = opts.chainId || 43114
 
   // optionally, pass poseidon callback
-  const _utils = utils(_opts.poseidon)
+  const _utils = utils(opts.poseidon)
 
   // represents a Name in the system
   const Name = function (name, provider) {
