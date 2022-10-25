@@ -18,7 +18,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "circomlibjs": "git+https://github.com/avvydomains/circomlibjs.git#avvy-1.0.2",
+    "circomlibjs": "git+https://github.com/avvydomains/circomlibjs.git#avvy-1.0.3",
     "ethers": "^5.5.4"
   },
   "devDependencies": {
