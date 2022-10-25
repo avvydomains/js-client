@@ -6,7 +6,7 @@ import AVVY from '../src/index.js'
 const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545')
 const TEST_NAME = 'avvy-client-common-testing.avax'
 
-describe.only('Utils', async () => {
+describe('Utils', async () => {
   it('should use default poseidon if user does not fill', async () => {
     const avvy = new AVVY(provider, {
       chainId: 31337,

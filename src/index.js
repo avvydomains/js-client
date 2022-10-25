@@ -41,122 +41,6 @@ const ethersProvider = function (provider, chainId) {
     }
   }
 }
-
-// represents a Name in the system
-const Name = function (name, provider) {
-
-  // lowercase the name. if someone passes in NAME.avax
-  // that is equivalent to name.avax
-  name = name.toLowerCase()
-
-  // the namespace is the first label of a name
-  const getNamespace = async () => {
-    const split = name.split('.')
-    split.reverse()
-    const namespace = split[0]
-    const hash = await utils.nameHash(namespace)
-    return {
-      namespace,
-      hash
-    }
-  }
-
-  // the domain is the first two labels of the name (namespace, and the next label)
-  const getDomain = async () => {
-    const split = name.split('.')
-    split.reverse()
-    const _domain = split.slice(0, 2)
-    _domain.reverse()
-    const domain = _domain.join('.')
-    const hash = await utils.nameHash(domain)
-    return {
-      domain,
-      hash
-    }
-  }
-
-  return {
-    name,
-    resolve: async (key) => {
-      let resolveMethod
-      
-      // standard keys are numeric
-      if (typeof key == 'number') {
-        if (records._standardKeyList.indexOf(key) === -1) {
-          throw `Unknown numeric key ${key} passed to resolve(). If you wish to use a custom key, pass a string.`
-        }
-        resolveMethod = provider.resolveStandard
-      } 
-      
-      // custom keys are strings
-      else if (typeof key === 'string') {
-        resolveMethod = provider.resolve
-      }
-
-      else {
-        throw "Unknown key type passed to resolve()"
-      }
-
-      let domain = await getDomain() // this is the domain with 2 labels, e.g. name.avax
-      let nameHash = await utils.nameHash(name)
-      let expiresAt = await provider.getExpiry(domain.hash)
-      if (expiresAt === 0) {
-        throw "Domain has not been registered"
-      }
-      const now = parseInt(Date.now() / 1000)
-      if (now >= expiresAt) {
-        throw "Domain registration is expired"
-      }
-
-      // find the active resolver
-      // for a name aaa.bbb.ccc.avax, we must
-      // check for a resolver set at:
-      // - aaa.bbb.ccc.avax
-      // - bbb.ccc.avax
-      // - ccc.avax
-      // the resolver set at the longest subdomain is the one to use
-      let split = name.split('.')
-      let resolver
-      while (split.length >= 2) {
-        let subdomain = split.join('.')
-        let hash = await utils.nameHash(subdomain)
-        try {
-          resolver = await provider.getResolver(domain.hash, hash)
-          break
-        } catch (err) {}
-        split = split.slice(1)
-      }
-
-      if (!resolver) throw "No resolver set"
-
-      // fetch the value
-      return await resolveMethod(resolver.resolver, resolver.datasetId, nameHash, key)
-    },
-  }
-}
-
-// represents the hash of a Name in the system
-const Hash = function (hash, provider) {
-  
-  // attempt to look up the hash from the API
-  const lookup = async () => {
-    let signal
-    try {
-      signal = await provider.lookupHash(hash)
-    } catch (err) {
-      // hash not revealed
-      return null
-    }
-    const preimage = await utils.decodeNameHashInputSignals(signal)
-    return Name(preimage, provider)
-  }
-
-  return {
-    hash,
-    lookup,
-  }
-}
-
 const AVVY = function (_provider, _opts) {
 
   // optionally pass chainId
@@ -165,6 +49,122 @@ const AVVY = function (_provider, _opts) {
 
   // optionally, pass poseidon callback
   const _utils = utils(_opts.poseidon)
+
+  // represents a Name in the system
+  const Name = function (name, provider) {
+
+    // lowercase the name. if someone passes in NAME.avax
+    // that is equivalent to name.avax
+    name = name.toLowerCase()
+
+    // the namespace is the first label of a name
+    const getNamespace = async () => {
+      const split = name.split('.')
+      split.reverse()
+      const namespace = split[0]
+      const hash = await _utils.nameHash(namespace)
+      return {
+        namespace,
+        hash
+      }
+    }
+
+    // the domain is the first two labels of the name (namespace, and the next label)
+    const getDomain = async () => {
+      const split = name.split('.')
+      split.reverse()
+      const _domain = split.slice(0, 2)
+      _domain.reverse()
+      const domain = _domain.join('.')
+      const hash = await _utils.nameHash(domain)
+      return {
+        domain,
+        hash
+      }
+    }
+
+    return {
+      name,
+      resolve: async (key) => {
+        let resolveMethod
+        
+        // standard keys are numeric
+        if (typeof key == 'number') {
+          if (records._standardKeyList.indexOf(key) === -1) {
+            throw `Unknown numeric key ${key} passed to resolve(). If you wish to use a custom key, pass a string.`
+          }
+          resolveMethod = provider.resolveStandard
+        } 
+        
+        // custom keys are strings
+        else if (typeof key === 'string') {
+          resolveMethod = provider.resolve
+        }
+
+        else {
+          throw "Unknown key type passed to resolve()"
+        }
+
+        let domain = await getDomain() // this is the domain with 2 labels, e.g. name.avax
+        let nameHash = await _utils.nameHash(name)
+        let expiresAt = await provider.getExpiry(domain.hash)
+        if (expiresAt === 0) {
+          throw "Domain has not been registered"
+        }
+        const now = parseInt(Date.now() / 1000)
+        if (now >= expiresAt) {
+          throw "Domain registration is expired"
+        }
+
+        // find the active resolver
+        // for a name aaa.bbb.ccc.avax, we must
+        // check for a resolver set at:
+        // - aaa.bbb.ccc.avax
+        // - bbb.ccc.avax
+        // - ccc.avax
+        // the resolver set at the longest subdomain is the one to use
+        let split = name.split('.')
+        let resolver
+        while (split.length >= 2) {
+          let subdomain = split.join('.')
+          let hash = await _utils.nameHash(subdomain)
+          try {
+            resolver = await provider.getResolver(domain.hash, hash)
+            break
+          } catch (err) {}
+          split = split.slice(1)
+        }
+
+        if (!resolver) throw "No resolver set"
+
+        // fetch the value
+        return await resolveMethod(resolver.resolver, resolver.datasetId, nameHash, key)
+      },
+    }
+  }
+
+  // represents the hash of a Name in the system
+  const Hash = function (hash, provider) {
+    
+    // attempt to look up the hash from the API
+    const lookup = async () => {
+      let signal
+      try {
+        signal = await provider.lookupHash(hash)
+      } catch (err) {
+        // hash not revealed
+        return null
+      }
+      const preimage = await _utils.decodeNameHashInputSignals(signal)
+      return Name(preimage, provider)
+    }
+
+    return {
+      hash,
+      lookup,
+    }
+  }
+
   
   // we'll support ethers for now. later,
   // we can add support for web3
