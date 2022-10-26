@@ -98,6 +98,10 @@ The preimage of the hash is stored as an array of large integers which can be in
 
 After you have initialized `const avvy = new AVVY(provider)`, all contracts are available as `ethers.Contract` instances in `avvy.contracts`.
 
+# Running on React Native
+
+To run the client on React Native, please see https://github.com/avvydomains/react-native-provider
+
 # Distributing for frontend web
 
 ## Parcel
@@ -114,8 +118,6 @@ You'll probably need to install the Buffer polyfill: `npm i --save-dev buffer`
 
 ```
 {
-  os: false,
-  crypto: false,
   buffer: require.resolve('buffer/'),
   assert: require.resolve('assert'),
 }
