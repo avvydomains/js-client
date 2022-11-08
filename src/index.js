@@ -38,6 +38,9 @@ const ethersProvider = function (provider, chainId) {
     },
     getReverseResolverAddress: async (key) => {
       return await contracts.ReverseResolverRegistryV1.getResolver(key)
+    },
+    poseidon: async (num) => {
+      return await contracts.Poseidon['poseidon(uint256[3])'](num)
     }
   }
 }
@@ -46,9 +49,38 @@ const AVVY = function (_provider, _opts) {
   // optionally pass chainId
   const opts = _opts || {}
   const chainId = opts.chainId || 43114
+  
+  // we'll support ethers for now. later,
+  // we can add support for web3
+  const provider = ethersProvider(_provider, chainId)
 
-  // optionally, pass poseidon callback
-  const _utils = utils(opts.poseidon)
+  // pre-cache hash for "avax" TLD
+  const providerPoseidonCache = {
+    '0': {
+      '2019653217': {
+        '0': 4272832630669137235923015693490068373911885005413996126751674003559469537065n
+      }
+    }
+  }
+  let providerPoseidonCacheSize = 1
+  const providerPoseidon = async (num) => {
+    const n1 = num[0].toString()
+    const n2 = num[1].toString()
+    const n3 = num[2].toString()
+    if ((n1 in providerPoseidonCache)
+        && (n2 in providerPoseidonCache[n1])
+        && (n3 in providerPoseidonCache[n1][n2])) {
+      return providerPoseidonCache[n1][n2][n3]
+    }
+    const bignum = await provider.poseidon(num)
+    const result = bignum.toBigInt()
+    if (!(n1 in providerPoseidonCache)) providerPoseidonCache[n1] = {}
+    if (!(n2 in providerPoseidonCache[n1])) providerPoseidonCache[n1][n2] = {}
+    providerPoseidonCache[n1][n2][n3] = result
+    providerPoseidonCacheSize += 1
+    return result
+  }
+  const _utils = utils(opts.poseidon || providerPoseidon)
 
   // represents a Name in the system
   const Name = function (name, provider) {
@@ -165,10 +197,6 @@ const AVVY = function (_provider, _opts) {
     }
   }
 
-  
-  // we'll support ethers for now. later,
-  // we can add support for web3
-  const provider = ethersProvider(_provider, chainId)
 
   const name = (n) => {
     return Name(n, provider)
@@ -209,6 +237,5 @@ const AVVY = function (_provider, _opts) {
 
 AVVY.blocklist = blocklist
 AVVY.RECORDS = records
-AVVY.utils = utils()
 
 export default AVVY

@@ -14,7 +14,7 @@ describe('Hashes', async () => {
     avvy = new AVVY(provider, {
       chainId: 31337
     })
-    hash = await AVVY.utils.nameHash(TEST_NAME)
+    hash = await avvy.utils.nameHash(TEST_NAME)
   })
 
   it('should reverse the hash if preimage revealed', async () => {

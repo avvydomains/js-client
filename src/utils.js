@@ -1,20 +1,7 @@
 
 import { ethers } from 'ethers'
 
-// circomlib 0.8.0 implementation
-// import poseidon  from 'circomlibjs/src/poseidon.js'
-
-// circomlib 0.1.0 implementation
-import { buildPoseidon } from 'circomlibjs/src/poseidon_wasm.js'
-
 function utils(poseidonFunc) {
-  let poseidon
-  let poseidonInit = async () => {
-    if (!poseidon) {
-      poseidon = await buildPoseidon()
-    }
-  }
-
   /*
     converts a number into a bitstring
     algorithm mirrors that of github.com/iden3/circomlib
@@ -145,20 +132,7 @@ function utils(poseidonFunc) {
 
   /* runs a preimageSignal through the poseidon hash */
   const preimageSignal2HashSignal = async (num) => {
-    let hashed
-    if (poseidonFunc) {
-      hashed = await poseidonFunc(num)
-    } else {
-      // circomlib 0.1.0 implementation
-      await poseidonInit()
-      const arr = poseidon(num)
-      hashed = poseidon.F.toObject(arr)
-    }
-
-    // circomlib 0.0.8 implementation
-    //const hashed = poseidon(num)
-    
-    return hashed
+    return await poseidonFunc(num)
   }
 
   /* computes keccak256 of a string */
