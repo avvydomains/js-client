@@ -19,9 +19,6 @@ declare function AVVY(_provider: any, _opts: any): {
         }>;
     }>;
     contracts: {};
-    blocklist: {
-        isBlocked: (hash: any) => boolean;
-    };
     utils: {
         num2Bits: (inputNum: any, numBits: any) => any[];
         bits2Num: (inputBits: any) => bigint;
@@ -38,8 +35,6 @@ declare function AVVY(_provider: any, _opts: any): {
     RECORDS: {};
 };
 declare namespace AVVY {
-    export { blocklist };
     export { records as RECORDS };
 }
-import blocklist from "./blocklist.js";
 import records from "./records.js";

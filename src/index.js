@@ -1,4 +1,3 @@
-import blocklist from './blocklist.js'
 import _contracts from './contracts.js'
 import records from './records.js'
 import utils from './utils.js'
@@ -229,13 +228,11 @@ const AVVY = function (_provider, _opts) {
     reverse,
     contracts: provider.contracts,
 
-    blocklist,
     utils: _utils,
     RECORDS: records,
   }
 }
 
-AVVY.blocklist = blocklist
 AVVY.RECORDS = records
 
 export default AVVY
