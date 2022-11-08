@@ -94,6 +94,28 @@ The preimage of the hash is stored as an array of large integers which can be in
 - To convert a name to input signals, use `inputSignals = avvy.utils.encodeNameHashInputSignals('name.avax')`
 - To convert input signals t oa name, use `name = avvy.utils.decodeNameHashInputSignals(inputSignals)`
 
+## Poseidon Hash Function
+
+This package uses a smart contract to perform hashing calculations. For Enhanced Privacy users, this means that the preimage of the domain gets leaked to the RPC node. For applications, this means that each hash calculation is a network call. We cache the results to reduce the number of network calls.
+
+Integrators can optionally perform the hashing locally by configuring the package as follows:
+
+1. Install circomlibjs: `npm i circomlibjs`
+2. Instantiate the Avvy client:
+
+```javascript
+import { buildPoseidon } from 'circomlibjs/src/poseidon_wasm.js'
+
+// ...
+
+const poseidon = await buildPoseidon()
+const avvy = new AVVY(provider, {
+  poseidon: async (args) => {
+    return poseidon.F.toObject(poseidon(args))
+  }
+})
+```
+
 ## Accessing contracts directly
 
 After you have initialized `const avvy = new AVVY(provider)`, all contracts are available as `ethers.Contract` instances in `avvy.contracts`.
