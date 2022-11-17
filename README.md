@@ -71,7 +71,15 @@ const main = async () => {
 main()
 ```
 
-**IMPORTANT: XSS / Code Injection Risk**
+## CommonJS Import
+
+To import AVVY via require, use:
+
+```javascript
+const AVVY = require('@avvy/client/index.cjs')
+```
+
+## IMPORTANT: XSS / Code Injection Risk
 
 The client does not perform any validation or sanitization of resolved values. Integrators should assume all values retrieved from `.resolve()` are untrusted and potentially malicious. 
 
