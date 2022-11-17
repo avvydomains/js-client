@@ -11,8 +11,9 @@
   },
   "scripts": {
     "test": "npx mocha test/* --timeout 10000",
-    "build": "rm -rf lib && rm -rf types && node build.js && npm run gentypes",
+    "build": "rm -rf lib && rm -rf types && node build.js && npm run gentypes && npm run rollup",
     "prepare": "npm run build",
+    "rollup": "npx rollup src/index.js --file index.cjs --format cjs",
     "gentypes": "npx -p typescript tsc src/index.js --declaration --allowJs --emitDeclarationOnly --outDir types"
   },
   "author": "",
