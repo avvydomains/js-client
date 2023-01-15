@@ -18,6 +18,10 @@ declare function AVVY(_provider: any, _opts: any): {
             resolve: (key: any) => Promise<any>;
         }>;
     }>;
+    batch: (items: any) => {
+        lookup: () => Promise<string[]>;
+        reverse: (key: any) => Promise<any>;
+    };
     contracts: {};
     utils: {
         num2Bits: (inputNum: any, numBits: any) => any[];
