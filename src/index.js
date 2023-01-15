@@ -60,7 +60,7 @@ const ethersProvider = function (provider, chainId) {
         } else {
           txs.push({
             method: 'eth_call',
-            params: [await contracts.RainbowTableV1.populateTransaction.lookup(hashes[i])]
+            params: [await contracts.RainbowTableV1.populateTransaction.lookup(hashes[i]), "latest"]
           })
         }
       }
@@ -99,7 +99,7 @@ const ethersProvider = function (provider, chainId) {
       for (let i = 0; i < values.length; i += 1) {
         txs.push({
           method: 'eth_call',
-          params: [await contract.populateTransaction.get(values[i])]
+          params: [await contract.populateTransaction.get(values[i]), "latest"]
         })
       }
       const results = (await batchExecutor.execute(txs)).map(res => {
