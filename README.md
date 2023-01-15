@@ -124,6 +124,36 @@ const avvy = new AVVY(provider, {
 })
 ```
 
+## Batch Operations
+
+Batch operations rely on JSON-RPC 2.0's batch operations. You must use an RPC URL that supports JSON-RPC 2.0.
+
+To initialize the client for batch operations:
+
+```javascript
+const avvy = new AVVY(provider, {
+  batchJsonRpc: '<JSON_RPC_URL>' 
+})
+```
+
+To reverse resolve a batch of EVM addresses:
+
+```javascript
+const hashes = await avvy.batch([
+  '0x...',
+  '0x...',
+  ...
+]).reverse(avvy.RECORDS.EVM)
+```
+
+To convert a batch of hashes into .avax names:
+
+```javascript
+const names = await avvy.batch(hashes).lookup()
+```
+
+If the operation fails to produce a result for an item in the batch, the result will be null.
+
 ## Accessing contracts directly
 
 After you have initialized `const avvy = new AVVY(provider)`, all contracts are available as `ethers.Contract` instances in `avvy.contracts`.

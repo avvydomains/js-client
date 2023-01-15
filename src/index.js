@@ -1,6 +1,42 @@
+import fetch from 'node-fetch'
+
 import _contracts from './contracts.js'
 import records from './records.js'
 import utils from './utils.js'
+
+const BatchExecutor = function (jsonRpcUrl) {
+  return {
+    execute: async (txs) => {
+      const nullIndexes = []
+      const payload = txs.map((tx, index) => {
+        if (tx) {
+          return Object.assign(tx, {
+            jsonrpc: '2.0',
+            id: index + 1
+          })
+        } else {
+          nullIndexes.push(index)
+          return null
+        }
+      }).filter(tx => tx !== null)
+      const res = await fetch(jsonRpcUrl, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'accept': 'application/json',
+        },
+        body: JSON.stringify(payload)
+      })
+      const json = (await res.json()).map(r => r.result)
+      
+      // fill null indexes
+      for (let i = 0; i < nullIndexes.length; i += 1) {
+        json.splice(nullIndexes[i], 0, null)
+      }
+      return json
+    }
+  }
+}
 
 const ethersProvider = function (provider, chainId) {
   const contractLoader = _contracts.ethersLoader(provider, chainId)
@@ -15,6 +51,27 @@ const ethersProvider = function (provider, chainId) {
     lookupHash: async (hash) => {
       const result = await contracts.RainbowTableV1.lookup(hash)
       return result
+    },
+    lookupHashBatch: async (batchExecutor, hashes) => {
+      const txs = []
+      for (let i = 0; i < hashes.length; i += 1) {
+        if (hashes[i] === null) {
+          txs.push(null)
+        } else {
+          txs.push({
+            method: 'eth_call',
+            params: [await contracts.RainbowTableV1.populateTransaction.lookup(hashes[i])]
+          })
+        }
+      }
+      const results = (await batchExecutor.execute(txs)).map(res => {
+        try {
+          return contracts.RainbowTableV1.interface.decodeFunctionResult('lookup', res).preimage
+        } catch (error) {
+          return null
+        }
+      })
+      return results
     },
     getResolver: async (domain, hash) => {
       const resolver = await contracts.ResolverRegistryV1.get(domain, hash)
@@ -35,6 +92,29 @@ const ethersProvider = function (provider, chainId) {
       const contract = contractLoader.getEVMReverseResolverContract(address)
       return await contract.get(value)
     },
+    reverseResolveEVMBatch: async (batchExecutor, key, values) => {
+      const address = await contracts.ReverseResolverRegistryV1.getResolver(key)
+      const contract = contractLoader.getEVMReverseResolverContract(address)
+      const txs = []
+      for (let i = 0; i < values.length; i += 1) {
+        txs.push({
+          method: 'eth_call',
+          params: [await contract.populateTransaction.get(values[i])]
+        })
+      }
+      const results = (await batchExecutor.execute(txs)).map(res => {
+        if (res === null) {
+          return null
+        } else {
+          try {
+            return contract.interface.decodeFunctionResult('get', res).hash
+          } catch (error) {
+            return null
+          }
+        }
+      })
+      return results
+    },
     getReverseResolverAddress: async (key) => {
       return await contracts.ReverseResolverRegistryV1.getResolver(key)
     },
@@ -48,6 +128,9 @@ const AVVY = function (_provider, _opts) {
   // optionally pass chainId
   const opts = _opts || {}
   const chainId = opts.chainId || 43114
+
+  // optionally pass in batchJsonRpc
+  const batchExecutor = opts.batchJsonRpc ? BatchExecutor(opts.batchJsonRpc) : null
   
   // we'll support ethers for now. later,
   // we can add support for web3
@@ -205,6 +288,31 @@ const AVVY = function (_provider, _opts) {
     return Hash(h, provider)
   }
 
+  const batch = (items) => {
+    if (!batchExecutor) throw "Batch execution is not configured. Please set batchJsonRpc."
+    const reverse = async (key) => {
+      return await provider.reverseResolveEVMBatch(batchExecutor, key, items)
+    }
+
+    const lookup = async () => {
+      const lookupResults = await provider.lookupHashBatch(batchExecutor, items)
+      const decoded = []
+      for (let i = 0; i < lookupResults.length; i += 1) {
+        if (lookupResults[i] === null) {
+          decoded.push(null)
+        } else {
+          decoded.push(await _utils.decodeNameHashInputSignals(lookupResults[i]))
+        }
+      }
+      return decoded
+    }
+
+    return {
+      lookup,
+      reverse
+    }
+  }
+
   const reverse = async (key, value) => {
     let method
     switch (key) {
@@ -217,7 +325,7 @@ const AVVY = function (_provider, _opts) {
     try {
       result = await method(key, value)
     } catch (err) {
-      return null
+     return null
     }
     return Hash(result.hash, provider)
   }
@@ -226,6 +334,7 @@ const AVVY = function (_provider, _opts) {
     name,
     hash,
     reverse,
+    batch,
     contracts: provider.contracts,
 
     utils: _utils,
