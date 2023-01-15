@@ -158,43 +158,6 @@ If the operation fails to produce a result for an item in the batch, the result 
 
 After you have initialized `const avvy = new AVVY(provider)`, all contracts are available as `ethers.Contract` instances in `avvy.contracts`.
 
-# Running on React Native
-
-To run the client on React Native, please see https://github.com/avvydomains/react-native-provider
-
-# Distributing for frontend web
-
-## Parcel
-
-https://parceljs.org/ works nicely out of the box.
-
-## Webpack
-
-If you're using webpack, you'll have trouble with importing some unsupported libs. Here 
-
-You'll probably need to install the Buffer polyfill: `npm i --save-dev buffer`
-
- A quick bypass is to add the following to `resolve.fallback` in your webpack config:
-
-```
-{
-  buffer: require.resolve('buffer/'),
-  assert: require.resolve('assert'),
-}
-```
-
-You may also need to add the following to the `plugins` section in your webpack config:
-
-```
-new webpack.DefinePlugin({
-  process: {
-    browser: true
-  }
-}),
-new webpack.ProvidePlugin({
-  Buffer: ['buffer', 'Buffer'],
-})
-```
 
 # Development
 
