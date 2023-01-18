@@ -79,7 +79,8 @@ To initialize the client for batch operations:
 
 ```javascript
 const avvy = new AVVY(provider, {
-  batchJsonRpc: '<JSON_RPC_URL>' 
+  batchJsonRpc: '<JSON_RPC_URL>',
+  fetchJson: ethers.utils.fetchJson
 })
 ```
 

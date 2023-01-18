@@ -1,10 +1,8 @@
-import fetch from 'node-fetch'
-
 import _contracts from './contracts.js'
 import records from './records.js'
 import utils from './utils.js'
 
-const BatchExecutor = function (jsonRpcUrl) {
+const BatchExecutor = function (fetchJson, jsonRpcUrl) {
   return {
     execute: async (txs) => {
       const nullIndexes = []
@@ -19,15 +17,8 @@ const BatchExecutor = function (jsonRpcUrl) {
           return null
         }
       }).filter(tx => tx !== null)
-      const res = await fetch(jsonRpcUrl, {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-          'accept': 'application/json',
-        },
-        body: JSON.stringify(payload)
-      })
-      const json = (await res.json()).map(r => r.result)
+      const res = await fetchJson(jsonRpcUrl, JSON.stringify(payload))
+      const json = res.map(r => r.result)
       
       // fill null indexes
       for (let i = 0; i < nullIndexes.length; i += 1) {
@@ -130,7 +121,7 @@ const AVVY = function (_provider, _opts) {
   const chainId = opts.chainId || 43114
 
   // optionally pass in batchJsonRpc
-  const batchExecutor = opts.batchJsonRpc ? BatchExecutor(opts.batchJsonRpc) : null
+  const batchExecutor = opts.batchJsonRpc && opts.fetchJson ? BatchExecutor(opts.fetchJson, opts.batchJsonRpc) : null
   
   // we'll support ethers for now. later,
   // we can add support for web3

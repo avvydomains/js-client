@@ -1,6 +1,6 @@
 {
   "name": "@avvy/client",
-  "version": "3.2.1",
+  "version": "3.2.5",
   "description": "",
   "main": "src/index.js",
   "type": "module",
@@ -43,8 +43,5 @@
     "lib",
     "src",
     "index.cjs"
-  ],
-  "dependencies": {
-    "node-fetch": "^3.3.0"
-  }
+  ]
 }

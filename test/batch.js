@@ -14,7 +14,8 @@ describe('Batch Operations', async () => {
   beforeEach(async () => {
     avvy = new AVVY(provider, {
       chainId: 31337,
-      batchJsonRpc: 'http://localhost:8545'
+      batchJsonRpc: 'http://localhost:8545',
+      fetchJson: ethers.utils.fetchJson
     })
   })
 
