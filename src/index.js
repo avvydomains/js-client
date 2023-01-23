@@ -1,17 +1,48 @@
+import abi from './abi.js'
 import _contracts from './contracts.js'
 import records from './records.js'
 import utils from './utils.js'
 
-const BatchExecutor = function (fetchJson, jsonRpcUrl) {
+
+const MulticallBatchExecutor = function (provider) {
   return {
     execute: async (txs) => {
       const nullIndexes = []
       const payload = txs.map((tx, index) => {
         if (tx) {
-          return Object.assign(tx, {
+          return {
+            target: tx.to,
+            callData: tx.data
+          }
+        } else {
+          nullIndexes.push(index)
+          return null
+        }
+      }).filter(tx => tx !== null)
+      const res = await provider.contracts.Multicall2.callStatic.tryAggregate(false, payload)
+      const ret = res.map(r => r.returnData)
+
+      // fill null indexes
+      for (let i = 0; i < nullIndexes.length; i += 1) {
+        ret.splice(nullIndexes[i], 0, null)
+      }
+      return ret
+    }
+  }
+}
+
+const JsonBatchExecutor = function (fetchJson, jsonRpcUrl) {
+  return {
+    execute: async (txs) => {
+      const nullIndexes = []
+      const payload = txs.map((tx, index) => {
+        if (tx) {
+          return {
             jsonrpc: '2.0',
-            id: index + 1
-          })
+            id: index + 1,
+            method: 'eth_call',
+            params: [tx, 'latest']
+          }
         } else {
           nullIndexes.push(index)
           return null
@@ -49,10 +80,7 @@ const ethersProvider = function (provider, chainId) {
         if (hashes[i] === null) {
           txs.push(null)
         } else {
-          txs.push({
-            method: 'eth_call',
-            params: [await contracts.RainbowTableV1.populateTransaction.lookup(hashes[i]), "latest"]
-          })
+          txs.push(await contracts.RainbowTableV1.populateTransaction.lookup(hashes[i]))
         }
       }
       const results = (await batchExecutor.execute(txs)).map(res => {
@@ -88,10 +116,7 @@ const ethersProvider = function (provider, chainId) {
       const contract = contractLoader.getEVMReverseResolverContract(address)
       const txs = []
       for (let i = 0; i < values.length; i += 1) {
-        txs.push({
-          method: 'eth_call',
-          params: [await contract.populateTransaction.get(values[i]), "latest"]
-        })
+        txs.push(await contract.populateTransaction.get(values[i]))
       }
       const results = (await batchExecutor.execute(txs)).map(res => {
         if (res === null) {
@@ -119,13 +144,18 @@ const AVVY = function (_provider, _opts) {
   // optionally pass chainId
   const opts = _opts || {}
   const chainId = opts.chainId || 43114
-
-  // optionally pass in batchJsonRpc
-  const batchExecutor = opts.batchJsonRpc && opts.fetchJson ? BatchExecutor(opts.fetchJson, opts.batchJsonRpc) : null
   
   // we'll support ethers for now. later,
   // we can add support for web3
   const provider = ethersProvider(_provider, chainId)
+
+  // configure batching
+  let batchExecutor = null
+  if (opts.batchJsonRpc && opts.fetchJson) {
+    batchExecutor = JsonBatchExecutor(opts.fetchJson, opts.batchJsonRpc)
+  } else {
+    batchExecutor = MulticallBatchExecutor(provider)
+  }
 
   // pre-cache hash for "avax" TLD
   const providerPoseidonCache = {

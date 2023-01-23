@@ -2381,6 +2381,322 @@ var _43114 = {
         }
       ]
     },
+    "Multicall2": {
+      "address": "0xe72137272De3d1a3759eeBb6ee525b62a129dF29",
+      "abi": [
+        {
+          "inputs": [
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "target",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "callData",
+                  "type": "bytes"
+                }
+              ],
+              "internalType": "struct Multicall2.Call[]",
+              "name": "calls",
+              "type": "tuple[]"
+            }
+          ],
+          "name": "aggregate",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "blockNumber",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bytes[]",
+              "name": "returnData",
+              "type": "bytes[]"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "target",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "callData",
+                  "type": "bytes"
+                }
+              ],
+              "internalType": "struct Multicall2.Call[]",
+              "name": "calls",
+              "type": "tuple[]"
+            }
+          ],
+          "name": "blockAndAggregate",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "blockNumber",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "blockHash",
+              "type": "bytes32"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "bool",
+                  "name": "success",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "returnData",
+                  "type": "bytes"
+                }
+              ],
+              "internalType": "struct Multicall2.Result[]",
+              "name": "returnData",
+              "type": "tuple[]"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "blockNumber",
+              "type": "uint256"
+            }
+          ],
+          "name": "getBlockHash",
+          "outputs": [
+            {
+              "internalType": "bytes32",
+              "name": "blockHash",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "getBlockNumber",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "blockNumber",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "getCurrentBlockCoinbase",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "coinbase",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "getCurrentBlockDifficulty",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "difficulty",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "getCurrentBlockGasLimit",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "gaslimit",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "getCurrentBlockTimestamp",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "timestamp",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "addr",
+              "type": "address"
+            }
+          ],
+          "name": "getEthBalance",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "balance",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "getLastBlockHash",
+          "outputs": [
+            {
+              "internalType": "bytes32",
+              "name": "blockHash",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bool",
+              "name": "requireSuccess",
+              "type": "bool"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "target",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "callData",
+                  "type": "bytes"
+                }
+              ],
+              "internalType": "struct Multicall2.Call[]",
+              "name": "calls",
+              "type": "tuple[]"
+            }
+          ],
+          "name": "tryAggregate",
+          "outputs": [
+            {
+              "components": [
+                {
+                  "internalType": "bool",
+                  "name": "success",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "returnData",
+                  "type": "bytes"
+                }
+              ],
+              "internalType": "struct Multicall2.Result[]",
+              "name": "returnData",
+              "type": "tuple[]"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bool",
+              "name": "requireSuccess",
+              "type": "bool"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "target",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "callData",
+                  "type": "bytes"
+                }
+              ],
+              "internalType": "struct Multicall2.Call[]",
+              "name": "calls",
+              "type": "tuple[]"
+            }
+          ],
+          "name": "tryBlockAndAggregate",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "blockNumber",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "blockHash",
+              "type": "bytes32"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "bool",
+                  "name": "success",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "returnData",
+                  "type": "bytes"
+                }
+              ],
+              "internalType": "struct Multicall2.Result[]",
+              "name": "returnData",
+              "type": "tuple[]"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        }
+      ]
+    },
     "NamespaceV1": {
       "address": "0x72cbb66B23dC7D98E46f0602aC2258F863297440",
       "abi": [
@@ -4462,7 +4778,7 @@ var records = {
       "regex": {
       },
       "label": "Phone Number",
-      "description": "A telephone number. Should conform to the \"tel\" URL scheme defined in RFC2806."
+      "description": "A telephone number. Should conform to E.164 international number format."
     }
   ]
 };
@@ -4675,16 +4991,45 @@ function utils(poseidonFunc) {
   }
 }
 
-const BatchExecutor = function (fetchJson, jsonRpcUrl) {
+const MulticallBatchExecutor = function (provider) {
   return {
     execute: async (txs) => {
       const nullIndexes = [];
       const payload = txs.map((tx, index) => {
         if (tx) {
-          return Object.assign(tx, {
+          return {
+            target: tx.to,
+            callData: tx.data
+          }
+        } else {
+          nullIndexes.push(index);
+          return null
+        }
+      }).filter(tx => tx !== null);
+      const res = await provider.contracts.Multicall2.callStatic.tryAggregate(false, payload);
+      const ret = res.map(r => r.returnData);
+
+      // fill null indexes
+      for (let i = 0; i < nullIndexes.length; i += 1) {
+        ret.splice(nullIndexes[i], 0, null);
+      }
+      return ret
+    }
+  }
+};
+
+const JsonBatchExecutor = function (fetchJson, jsonRpcUrl) {
+  return {
+    execute: async (txs) => {
+      const nullIndexes = [];
+      const payload = txs.map((tx, index) => {
+        if (tx) {
+          return {
             jsonrpc: '2.0',
-            id: index + 1
-          })
+            id: index + 1,
+            method: 'eth_call',
+            params: [tx, 'latest']
+          }
         } else {
           nullIndexes.push(index);
           return null
@@ -4722,10 +5067,7 @@ const ethersProvider = function (provider, chainId) {
         if (hashes[i] === null) {
           txs.push(null);
         } else {
-          txs.push({
-            method: 'eth_call',
-            params: [await contracts.RainbowTableV1.populateTransaction.lookup(hashes[i]), "latest"]
-          });
+          txs.push(await contracts.RainbowTableV1.populateTransaction.lookup(hashes[i]));
         }
       }
       const results = (await batchExecutor.execute(txs)).map(res => {
@@ -4761,10 +5103,7 @@ const ethersProvider = function (provider, chainId) {
       const contract = contractLoader.getEVMReverseResolverContract(address);
       const txs = [];
       for (let i = 0; i < values.length; i += 1) {
-        txs.push({
-          method: 'eth_call',
-          params: [await contract.populateTransaction.get(values[i]), "latest"]
-        });
+        txs.push(await contract.populateTransaction.get(values[i]));
       }
       const results = (await batchExecutor.execute(txs)).map(res => {
         if (res === null) {
@@ -4792,13 +5131,18 @@ const AVVY = function (_provider, _opts) {
   // optionally pass chainId
   const opts = _opts || {};
   const chainId = opts.chainId || 43114;
-
-  // optionally pass in batchJsonRpc
-  const batchExecutor = opts.batchJsonRpc && opts.fetchJson ? BatchExecutor(opts.fetchJson, opts.batchJsonRpc) : null;
   
   // we'll support ethers for now. later,
   // we can add support for web3
   const provider = ethersProvider(_provider, chainId);
+
+  // configure batching
+  let batchExecutor = null;
+  if (opts.batchJsonRpc && opts.fetchJson) {
+    batchExecutor = JsonBatchExecutor(opts.fetchJson, opts.batchJsonRpc);
+  } else {
+    batchExecutor = MulticallBatchExecutor(provider);
+  }
 
   // pre-cache hash for "avax" TLD
   const providerPoseidonCache = {

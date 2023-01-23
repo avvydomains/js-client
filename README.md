@@ -73,16 +73,7 @@ main()
 
 ## Batch Operations
 
-Batch operations rely on JSON-RPC 2.0's batch operations. You must use an RPC URL that supports JSON-RPC 2.0.
-
-To initialize the client for batch operations:
-
-```javascript
-const avvy = new AVVY(provider, {
-  batchJsonRpc: '<JSON_RPC_URL>',
-  fetchJson: ethers.utils.fetchJson
-})
-```
+Batch operations rely on multicall by default. 
 
 To reverse resolve a batch of EVM addresses:
 
@@ -101,6 +92,20 @@ const names = await avvy.batch(hashes).lookup()
 ```
 
 If the operation fails to produce a result for an item in the batch, the result will be null.
+
+### Batch Operations via JSON-RPC 2.0
+
+You can optionally configure JSON-RPC 2.0's batch operations.
+
+To initialize the client for batch operations:
+
+```javascript
+const avvy = new AVVY(provider, {
+  batchJsonRpc: '<JSON_RPC_URL>',
+  fetchJson: ethers.utils.fetchJson
+})
+```
+
 
 ## CommonJS Import
 
