@@ -131,6 +131,24 @@ const ethersProvider = function (provider, chainId) {
       })
       return results
     },
+    reverseResolveEVMBatchToNames: async (batchExecutor, values) => {
+      const txs = []
+      for (let i = 0; i < values.length; i += 1) {
+        txs.push(await contracts.ResolutionUtilsV1.populateTransaction.reverseResolveEVMToName(values[i]))
+      }
+      const results = (await batchExecutor.execute(txs)).map(res => {
+        if (res === null) {
+          return null
+        } else {
+          try {
+            return contracts.ResolutionUtilsV1.interface.decodeFunctionResult('reverseResolveEVMToName', res).preimage
+          } catch (error) {
+            return null
+          }
+        }
+      })
+      return results
+    },
     getReverseResolverAddress: async (key) => {
       return await contracts.ReverseResolverRegistryV1.getResolver(key)
     },
@@ -315,6 +333,19 @@ const AVVY = function (_provider, _opts) {
       return await provider.reverseResolveEVMBatch(batchExecutor, key, items)
     }
 
+    const reverseToNames = async (key) => {
+      const signals = await provider.reverseResolveEVMBatchToNames(batchExecutor, items)
+      const decoded = []
+      for (let i = 0; i < signals.length; i += 1) {
+        if (signals[i].length === 0 || signals[0] === null) {
+          decoded.push(null)
+        } else {
+          decoded.push(await _utils.decodeNameHashInputSignals(signals[i]))
+        }
+      }
+      return decoded
+    }
+
     const lookup = async () => {
       const lookupResults = await provider.lookupHashBatch(batchExecutor, items)
       const decoded = []
@@ -330,7 +361,8 @@ const AVVY = function (_provider, _opts) {
 
     return {
       lookup,
-      reverse
+      reverse,
+      reverseToNames,
     }
   }
 

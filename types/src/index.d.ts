@@ -21,6 +21,7 @@ declare function AVVY(_provider: any, _opts: any): {
     batch: (items: any) => {
         lookup: () => Promise<string[]>;
         reverse: (key: any) => Promise<any>;
+        reverseToNames: (key: any) => Promise<string[]>;
     };
     contracts: {};
     utils: {

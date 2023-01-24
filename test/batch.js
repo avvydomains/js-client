@@ -57,6 +57,27 @@ describe('Batch Operations', async () => {
       expect(names[6]).to.be.null
       expect(names[7]).to.equal(TEST_NAME)
     })
+
+    it('should work for reversing EVM addresses to names', async () => {
+      const names = await avvy.batch([
+        REVERSE_TEST_PUBKEY_NOT_SET,
+        REVERSE_TEST_PUBKEY,
+        REVERSE_TEST_PUBKEY_NOT_SET,
+        REVERSE_TEST_PUBKEY,
+        REVERSE_TEST_PUBKEY_NOT_SET,
+        REVERSE_TEST_PUBKEY,
+        REVERSE_TEST_PUBKEY_NOT_SET,
+        REVERSE_TEST_PUBKEY,
+      ]).reverseToNames(avvy.RECORDS.EVM)
+      expect(names[0]).to.be.null
+      expect(names[1]).to.equal(TEST_NAME)
+      expect(names[2]).to.be.null
+      expect(names[3]).to.equal(TEST_NAME)
+      expect(names[4]).to.be.null
+      expect(names[5]).to.equal(TEST_NAME)
+      expect(names[6]).to.be.null
+      expect(names[7]).to.equal(TEST_NAME)
+    })
   })
 
   describe('MulticallBatchExecutor', async () => {
@@ -94,6 +115,27 @@ describe('Batch Operations', async () => {
         REVERSE_TEST_PUBKEY,
       ]).reverse(avvy.RECORDS.EVM)
       const names = await avvy.batch(hashes).lookup()
+      expect(names[0]).to.be.null
+      expect(names[1]).to.equal(TEST_NAME)
+      expect(names[2]).to.be.null
+      expect(names[3]).to.equal(TEST_NAME)
+      expect(names[4]).to.be.null
+      expect(names[5]).to.equal(TEST_NAME)
+      expect(names[6]).to.be.null
+      expect(names[7]).to.equal(TEST_NAME)
+    })
+
+    it('should work for reversing EVM addresses to names', async () => {
+      const names = await avvy.batch([
+        REVERSE_TEST_PUBKEY_NOT_SET,
+        REVERSE_TEST_PUBKEY,
+        REVERSE_TEST_PUBKEY_NOT_SET,
+        REVERSE_TEST_PUBKEY,
+        REVERSE_TEST_PUBKEY_NOT_SET,
+        REVERSE_TEST_PUBKEY,
+        REVERSE_TEST_PUBKEY_NOT_SET,
+        REVERSE_TEST_PUBKEY,
+      ]).reverseToNames(avvy.RECORDS.EVM)
       expect(names[0]).to.be.null
       expect(names[1]).to.equal(TEST_NAME)
       expect(names[2]).to.be.null
