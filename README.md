@@ -103,13 +103,10 @@ const names = await avvy.batch([
 
 If the operation fails to produce a result for an item in the batch, the result will be null.
 
-```javascript
 
 ### Batch Operations via JSON-RPC 2.0
 
-You can optionally configure JSON-RPC 2.0's batch operations.
-
-To initialize the client for batch operations:
+You can optionally run each operation individually at the EVM level, but leverage JSON-RPC 2.0's batch operations. This requires a JSON RPC endpoint, and can be configured as follows:
 
 ```javascript
 const avvy = new AVVY(provider, {
