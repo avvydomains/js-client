@@ -5,7 +5,8 @@ The Avvy Domains Javascript client provides essential functionality for interact
 # Installation
 
 ```
-npm i --save @avvy/client ```
+npm i --save @avvy/client 
+```
 
 # Usage
 
