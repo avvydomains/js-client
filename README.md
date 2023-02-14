@@ -5,8 +5,7 @@ The Avvy Domains Javascript client provides essential functionality for interact
 # Installation
 
 ```
-npm i --save @avvy/client
-```
+npm i --save @avvy/client ```
 
 # Usage
 
@@ -106,6 +105,20 @@ const avvy = new AVVY(provider, {
 })
 ```
 
+
+## Provider Support
+
+The Avvy client can be configured to support methods from ethers.js for interacting with naming systems.
+
+### ethers.js Configuration
+
+Default configuration for chainId 43114:
+
+```javascript
+const provider = new AVVY.providers.ethersProvider(
+  new ethers.providers.JsonRpcProvider(PROVIDER_URL)
+)
+```
 
 ## CommonJS Import
 

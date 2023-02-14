@@ -1,6 +1,7 @@
 import abi from './abi.js'
 import _contracts from './contracts.js'
 import records from './records.js'
+import providers from './providers.js'
 import utils from './utils.js'
 
 
@@ -124,6 +125,24 @@ const ethersProvider = function (provider, chainId) {
         } else {
           try {
             return contract.interface.decodeFunctionResult('get', res).hash
+          } catch (error) {
+            return null
+          }
+        }
+      })
+      return results
+    },
+    reverseResolveEVMBatchToNames: async (batchExecutor, values) => {
+      const txs = []
+      for (let i = 0; i < values.length; i += 1) {
+        txs.push(await contracts.ResolutionUtilsV1.populateTransaction.reverseResolveEVMToName(values[i]))
+      }
+      const results = (await batchExecutor.execute(txs)).map(res => {
+        if (res === null) {
+          return null
+        } else {
+          try {
+            return contracts.ResolutionUtilsV1.interface.decodeFunctionResult('reverseResolveEVMToName', res).preimage
           } catch (error) {
             return null
           }
@@ -315,6 +334,19 @@ const AVVY = function (_provider, _opts) {
       return await provider.reverseResolveEVMBatch(batchExecutor, key, items)
     }
 
+    const reverseToNames = async (key) => {
+      const signals = await provider.reverseResolveEVMBatchToNames(batchExecutor, items)
+      const decoded = []
+      for (let i = 0; i < signals.length; i += 1) {
+        if (signals[i].length === 0 || signals[0] === null) {
+          decoded.push(null)
+        } else {
+          decoded.push(await _utils.decodeNameHashInputSignals(signals[i]))
+        }
+      }
+      return decoded
+    }
+
     const lookup = async () => {
       const lookupResults = await provider.lookupHashBatch(batchExecutor, items)
       const decoded = []
@@ -330,7 +362,8 @@ const AVVY = function (_provider, _opts) {
 
     return {
       lookup,
-      reverse
+      reverse,
+      reverseToNames,
     }
   }
 
@@ -364,5 +397,6 @@ const AVVY = function (_provider, _opts) {
 }
 
 AVVY.RECORDS = records
+AVVY.providers = providers(AVVY)
 
 export default AVVY
