@@ -90,13 +90,22 @@ To convert a batch of hashes into .avax names:
 const names = await avvy.batch(hashes).lookup()
 ```
 
+To convert EVM addresses to names in one RPC call:
+
+```javascript
+const names = await avvy.batch([
+  '0x...',
+  '0x...',
+  ...
+]).reverseToNames(avvy.RECORDS.EVM)
+```
+
 If the operation fails to produce a result for an item in the batch, the result will be null.
+
 
 ### Batch Operations via JSON-RPC 2.0
 
-You can optionally configure JSON-RPC 2.0's batch operations.
-
-To initialize the client for batch operations:
+You can optionally run each operation individually at the EVM level, but leverage JSON-RPC 2.0's batch operations. This requires a JSON RPC endpoint, and can be configured as follows:
 
 ```javascript
 const avvy = new AVVY(provider, {
