@@ -1,9 +1,7 @@
 import { expect } from 'chai'
-import { ethers } from 'ethers'
+import helpers from './helpers/index.js'
 
 import AVVY from '../src/index.js'
-
-let provider
 
 const TEST_NAME = 'sub.avvy-client-common-testing.avax'
 const TEST_EXPECTED = '0x000000000000000000000000000000000000dead'
@@ -13,11 +11,13 @@ const REVERSE_TEST_PUBKEY_NOT_SET = '0x18f4Cc86D27655A6C907B79ed65a82085D5D1A43'
 
 describe('Providers', async () => {
   let avvy
+  let provider
 
   describe('ethers', async () => {
-    beforeEach(() => {
+    beforeEach(async () => {
+      let _provider = await helpers.buildEthersProvider('JsonRpcProvider', ['http://localhost:8545'])
       provider = new AVVY.providers.ethersProvider(
-        new ethers.providers.JsonRpcProvider('http://localhost:8545'),
+        _provider,
         { chainId: 31337 }
       )
     })

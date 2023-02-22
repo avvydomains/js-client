@@ -1,7 +1,5 @@
-import { ethers } from 'ethers'
-
+import { ethers } from '#ethers'
 import _contracts from '../lib/contracts/index.js'
-
 
 const ethersLoader = (signerOrProvider, chainId) => {
   if (!_contracts[chainId]) throw `Contracts not found for chainId ${chainId}`

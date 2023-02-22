@@ -1,14 +1,19 @@
 import { expect } from 'chai'
-import { ethers } from 'ethers'
+import helpers from './helpers/index.js'
 import crypto from 'crypto'
 import { buildPoseidon } from 'circomlibjs/src/poseidon_wasm.js'
 
 import AVVY from '../src/index.js'
 
-const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545')
 const TEST_NAME = 'avvy-client-common-testing.avax'
 
 describe('Poseidon', async () => {
+  let provider
+
+  beforeEach(async () => {
+    provider = await helpers.buildEthersProvider('JsonRpcProvider', ['http://localhost:8545'])
+  })
+
   it('should use default poseidon if user does not fill', async () => {
     const avvy = new AVVY(provider, {
       chainId: 31337,
@@ -29,7 +34,7 @@ describe('Poseidon', async () => {
   })
 
   it('should handle instantiation without options', async () => {
-    const _provider = new ethers.providers.JsonRpcProvider('https://api.avax.network/ext/bc/C/rpc')
+    const _provider = await helpers.buildEthersProvider('JsonRpcProvider', ['https://api.avax.network/ext/bc/C/rpc'])
     const avvy = new AVVY(_provider)
     const hash = await avvy.utils.nameHash(TEST_NAME)
     expect(hash.toString()).to.equal('5009886810970053750228119498024191690423831754312784118430229935127343039646')

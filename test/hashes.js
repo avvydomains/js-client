@@ -1,16 +1,17 @@
 import { expect } from 'chai'
-import { ethers } from 'ethers'
+import helpers from './helpers/index.js'
 
 import AVVY from '../src/index.js'
 
-const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545')
 const TEST_NAME = 'avvy-client-common-testing.avax'
 
 describe('Hashes', async () => {
   let avvy
   let hash
+  let provider
 
   beforeEach(async () => {
+    provider = await helpers.buildEthersProvider('JsonRpcProvider', ['http://localhost:8545'])
     avvy = new AVVY(provider, {
       chainId: 31337
     })

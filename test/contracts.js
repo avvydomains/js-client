@@ -1,14 +1,14 @@
 import { expect } from 'chai'
-import { ethers } from 'ethers'
+import helpers from './helpers/index.js'
 
 import AVVY from '../src/index.js'
 
-const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545')
-
 describe('Contracts', async () => {
   let avvy
+  let provider
 
   beforeEach(async () => {
+    provider = await helpers.buildEthersProvider('JsonRpcProvider', ['http://localhost:8545'])
     avvy = new AVVY(provider, {
       chainId: 31337
     })

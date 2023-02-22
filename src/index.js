@@ -1,4 +1,5 @@
 import abi from './abi.js'
+import compatibility from './compatibility.js'
 import _contracts from './contracts.js'
 import records from './records.js'
 import providers from './providers.js'
@@ -20,7 +21,11 @@ const MulticallBatchExecutor = function (provider) {
           return null
         }
       }).filter(tx => tx !== null)
-      const res = await provider.contracts.Multicall2.callStatic.tryAggregate(false, payload)
+      const res = await compatibility.ethers.staticCall(
+        provider.contracts.Multicall2,
+        'tryAggregate',
+        [false, payload]
+      )
       const ret = res.map(r => r.returnData)
 
       // fill null indexes
@@ -81,7 +86,13 @@ const ethersProvider = function (provider, chainId) {
         if (hashes[i] === null) {
           txs.push(null)
         } else {
-          txs.push(await contracts.RainbowTableV1.populateTransaction.lookup(hashes[i]))
+          txs.push(
+            await compatibility.ethers.populateTransaction(
+              contracts.RainbowTableV1,
+              'lookup',
+              [hashes[i]]
+            )
+          )
         }
       }
       const results = (await batchExecutor.execute(txs)).map(res => {
@@ -117,7 +128,13 @@ const ethersProvider = function (provider, chainId) {
       const contract = contractLoader.getEVMReverseResolverContract(address)
       const txs = []
       for (let i = 0; i < values.length; i += 1) {
-        txs.push(await contract.populateTransaction.get(values[i]))
+        txs.push(
+          await compatibility.ethers.populateTransaction(
+            contract,
+            'get',
+            [values[i]]
+          )
+        )
       }
       const results = (await batchExecutor.execute(txs)).map(res => {
         if (res === null) {
@@ -135,7 +152,13 @@ const ethersProvider = function (provider, chainId) {
     reverseResolveEVMBatchToNames: async (batchExecutor, values) => {
       const txs = []
       for (let i = 0; i < values.length; i += 1) {
-        txs.push(await contracts.ResolutionUtilsV1.populateTransaction.reverseResolveEVMToName(values[i]))
+        txs.push(
+          await compatibility.ethers.populateTransaction(
+            contracts.ResolutionUtilsV1,
+            'reverseResolveEVMToName',
+            [values[i]]
+          )
+        )
       }
       const results = (await batchExecutor.execute(txs)).map(res => {
         if (res === null) {
@@ -166,7 +189,9 @@ const AVVY = function (_provider, _opts) {
   
   // we'll support ethers for now. later,
   // we can add support for web3
-  const provider = ethersProvider(_provider, chainId)
+  const provider = ethersProvider(_provider, chainId, {
+    ethers: opts.ethers
+  })
 
   // configure batching
   let batchExecutor = null
@@ -195,7 +220,7 @@ const AVVY = function (_provider, _opts) {
       return providerPoseidonCache[n1][n2][n3]
     }
     const bignum = await provider.poseidon(num)
-    const result = bignum.toBigInt()
+    const result = bignum._isBigNumber ? bignum.toBigInt() : bignum
     if (!(n1 in providerPoseidonCache)) providerPoseidonCache[n1] = {}
     if (!(n2 in providerPoseidonCache[n1])) providerPoseidonCache[n1][n2] = {}
     providerPoseidonCache[n1][n2][n3] = result
