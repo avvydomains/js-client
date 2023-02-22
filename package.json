@@ -1,6 +1,6 @@
 {
   "name": "@avvy/client",
-  "version": "3.3.2",
+  "version": "3.4.0",
   "description": "",
   "main": "src/index.js",
   "type": "module",
@@ -17,7 +17,7 @@
     "build": "rm -rf lib && rm -rf types && node build.js && npm run gentypes && npm run rollup",
     "prepare": "npm run build",
     "rollup": "npx rollup src/index.js --file index.cjs --format cjs",
-    "gentypes": "npx -p typescript tsc src/index.js --declaration --allowJs --emitDeclarationOnly --outDir types"
+    "gentypes": "npx tsc"
   },
   "author": "",
   "license": "ISC",
@@ -34,7 +34,7 @@
     "ethers6": "npm:ethers@^6.0.5",
     "mocha": "^10.0.0",
     "rollup": "^3.3.0",
-    "typescript": "^4.8.2"
+    "typescript": "^4.9.5"
   },
   "imports": {
     "#ethers": {
@@ -57,5 +57,8 @@
     "src",
     "index.cjs",
     "types"
-  ]
+  ],
+  "dependencies": {
+    "tsc": "^2.0.4"
+  }
 }

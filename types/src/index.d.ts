@@ -30,10 +30,10 @@ declare function AVVY(_provider: any, _opts: any): {
         string2AsciiArray: (text: any, len: any) => any;
         asciiArray2PreimageSignal: (_chars: any) => (bigint | bigint[])[];
         preimageSignal2HashSignal: (num: any) => Promise<any>;
-        keccak256: (str: any) => string;
+        keccak256: (str: any) => any;
         nameHash: (domain: any) => Promise<number>;
         nameHashIteration: (prevHash: any, label: any) => Promise<any>;
-        registrationCommitHash: (_nameHashes: any, quantities: any, constraintsProofs: any, pricingProofs: any, salt: any) => Promise<string>;
+        registrationCommitHash: (_nameHashes: any, quantities: any, constraintsProofs: any, pricingProofs: any, salt: any) => Promise<any>;
         encodeNameHashInputSignals: (domain: any) => Promise<any[]>;
         decodeNameHashInputSignals: (inputSignals: any) => Promise<string>;
     };
@@ -41,5 +41,8 @@ declare function AVVY(_provider: any, _opts: any): {
 };
 declare namespace AVVY {
     export { records as RECORDS };
+    export const providers: {
+        ethersProvider: (provider: any, config: any) => any;
+    };
 }
 import records from "./records.js";

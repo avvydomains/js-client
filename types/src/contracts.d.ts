@@ -4,7 +4,6 @@ declare namespace _default {
 export default _default;
 declare function ethersLoader(signerOrProvider: any, chainId: any): {
     getContracts: () => {};
-    getResolverContract: (address: any) => ethers.Contract;
-    getEVMReverseResolverContract: (address: any) => ethers.Contract;
+    getResolverContract: (address: any) => any;
+    getEVMReverseResolverContract: (address: any) => any;
 };
-import { ethers } from "ethers";

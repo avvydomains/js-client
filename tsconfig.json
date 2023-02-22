@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "allowJs": true,
+    "outDir": "./types",
+    "skipLibCheck": true
+  },
+  "include": [
+    "src/index.js"
+  ]
+}
