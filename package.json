@@ -55,6 +55,7 @@
   "files": [
     "lib",
     "src",
-    "index.cjs"
+    "index.cjs",
+    "types"
   ]
 }
