@@ -1,7 +1,6 @@
 'use strict';
 
 var _ethers = require('#ethers');
-var ethers = require('ethers');
 
 // these methods are here to help handle version changes in 
 // ethers & web3.js 
@@ -4913,6 +4912,7 @@ const providers = function (AVVY) {
 };
 
 function utils(poseidonFunc) {
+
   /*
     converts a number into a bitstring
     algorithm mirrors that of github.com/iden3/circomlib
@@ -5029,13 +5029,6 @@ function utils(poseidonFunc) {
     return await poseidonFunc(num)
   };
 
-  /* computes keccak256 of a string */
-  const keccak256 = (str) => {
-    return ethers.ethers.utils.keccak256(
-      ethers.ethers.utils.toUtf8Bytes(str)
-    )
-  };
-
   const nameHashIteration = async (prevHash, label) => {
     const ascii = string2AsciiArray(label, 62);
     const preimage = asciiArray2PreimageSignal(ascii);
@@ -5051,15 +5044,6 @@ function utils(poseidonFunc) {
       hash = await nameHashIteration(hash, labels[i]);
     }
     return hash
-  };
-
-  const registrationCommitHash = async (_nameHashes, quantities, constraintsProofs, pricingProofs, salt) => {
-    return ethers.ethers.utils.keccak256(
-      ethers.ethers.utils.defaultAbiCoder.encode(
-        ['int[]', 'int[]', 'bytes[]', 'bytes[]', 'string'],
-        [_nameHashes, quantities, constraintsProofs, pricingProofs, salt]
-      )
-    )
   };
 
   const encodeNameHashInputSignals = async (domain) => {
@@ -5103,10 +5087,8 @@ function utils(poseidonFunc) {
     string2AsciiArray,
     asciiArray2PreimageSignal,
     preimageSignal2HashSignal,
-    keccak256,
     nameHash,
     nameHashIteration,
-    registrationCommitHash,
     encodeNameHashInputSignals,
     decodeNameHashInputSignals,
   }
