@@ -15,7 +15,8 @@ describe('Contracts', async () => {
   })
 
   it('should provide contracts ', async () => {
-    const contracts = Object.keys(avvy.contracts)
+    const _contracts = await avvy.contracts
+    const contracts = Object.keys(_contracts)
     expect(contracts.indexOf('ContractRegistryV1')).to.not.equal(-1)
   })
 })

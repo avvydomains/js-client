@@ -29,8 +29,7 @@ const MulticallBatchExecutor = function (provider) {
       const ret = res.map(r => r.returnData)
 
       // fill null indexes
-      for (let i = 0; i < nullIndexes.length; i += 1) {
-        ret.splice(nullIndexes[i], 0, null)
+      for (let i = 0; i < nullIndexes.length; i += 1) { ret.splice(nullIndexes[i], 0, null)
       }
       return ret
     }
@@ -66,8 +65,8 @@ const JsonBatchExecutor = function (fetchJson, jsonRpcUrl) {
   }
 }
 
-const ethersProvider = function (provider, chainId) {
-  const contractLoader = _contracts.ethersLoader(provider, chainId)
+const ethersProvider = async function (provider, chainId) {
+  const contractLoader = await _contracts.ethersLoader(provider, chainId)
   const contracts = contractLoader.getContracts(provider, chainId)
 
   return {
@@ -181,243 +180,277 @@ const ethersProvider = function (provider, chainId) {
     }
   }
 }
-const AVVY = function (_provider, _opts) {
 
-  // optionally pass chainId
-  const opts = _opts || {}
-  const chainId = opts.chainId || 43114
-  
-  // we'll support ethers for now. later,
-  // we can add support for web3
-  const provider = ethersProvider(_provider, chainId, {
-    ethers: opts.ethers
-  })
-
-  // configure batching
-  let batchExecutor = null
-  if (opts.batchJsonRpc && opts.fetchJson) {
-    batchExecutor = JsonBatchExecutor(opts.fetchJson, opts.batchJsonRpc)
-  } else {
-    batchExecutor = MulticallBatchExecutor(provider)
-  }
-
-  // pre-cache hash for "avax" TLD
-  const providerPoseidonCache = {
-    '0': {
-      '2019653217': {
-        '0': 4272832630669137235923015693490068373911885005413996126751674003559469537065n
+class AVVY {
+  constructor(provider, opts) {
+    this.init(provider, opts)
+    this.provider = null
+    this.batchExecutor = null
+    this.RECORDS = records
+    this._promises = {}
+    this.contracts = new Promise((resolve, reject) => {
+      this._promises.contracts = {
+        resolve, 
+        reject
       }
-    }
-  }
-  let providerPoseidonCacheSize = 1
-  const providerPoseidon = async (num) => {
-    const n1 = num[0].toString()
-    const n2 = num[1].toString()
-    const n3 = num[2].toString()
-    if ((n1 in providerPoseidonCache)
-        && (n2 in providerPoseidonCache[n1])
-        && (n3 in providerPoseidonCache[n1][n2])) {
-      return providerPoseidonCache[n1][n2][n3]
-    }
-    const bignum = await provider.poseidon(num)
-    const result = bignum._isBigNumber ? bignum.toBigInt() : bignum
-    if (!(n1 in providerPoseidonCache)) providerPoseidonCache[n1] = {}
-    if (!(n2 in providerPoseidonCache[n1])) providerPoseidonCache[n1][n2] = {}
-    providerPoseidonCache[n1][n2][n3] = result
-    providerPoseidonCacheSize += 1
-    return result
-  }
-  const _utils = utils(opts.poseidon || providerPoseidon)
-
-  // represents a Name in the system
-  const Name = function (name, provider) {
-
-    // lowercase the name. if someone passes in NAME.avax
-    // that is equivalent to name.avax
-    name = name.toLowerCase()
-
-    // the namespace is the first label of a name
-    const getNamespace = async () => {
-      const split = name.split('.')
-      split.reverse()
-      const namespace = split[0]
-      const hash = await _utils.nameHash(namespace)
-      return {
-        namespace,
-        hash
+    })
+    this.provider = new Promise((resolve, reject) => {
+      this._promises.provider = {
+        resolve,
+        reject
       }
-    }
-
-    // the domain is the first two labels of the name (namespace, and the next label)
-    const getDomain = async () => {
-      const split = name.split('.')
-      split.reverse()
-      const _domain = split.slice(0, 2)
-      _domain.reverse()
-      const domain = _domain.join('.')
-      const hash = await _utils.nameHash(domain)
-      return {
-        domain,
-        hash
-      }
-    }
-
-    return {
-      name,
-      resolve: async (key) => {
-        let resolveMethod
-        
-        // standard keys are numeric
-        if (typeof key == 'number') {
-          if (records._standardKeyList.indexOf(key) === -1) {
-            throw `Unknown numeric key ${key} passed to resolve(). If you wish to use a custom key, pass a string.`
-          }
-          resolveMethod = provider.resolveStandard
-        } 
-        
-        // custom keys are strings
-        else if (typeof key === 'string') {
-          resolveMethod = provider.resolve
-        }
-
-        else {
-          throw "Unknown key type passed to resolve()"
-        }
-
-        let domain = await getDomain() // this is the domain with 2 labels, e.g. name.avax
-        let nameHash = await _utils.nameHash(name)
-        let expiresAt = await provider.getExpiry(domain.hash)
-        if (expiresAt === 0) {
-          throw "Domain has not been registered"
-        }
-        const now = parseInt(Date.now() / 1000)
-        if (now >= expiresAt) {
-          throw "Domain registration is expired"
-        }
-
-        // find the active resolver
-        // for a name aaa.bbb.ccc.avax, we must
-        // check for a resolver set at:
-        // - aaa.bbb.ccc.avax
-        // - bbb.ccc.avax
-        // - ccc.avax
-        // the resolver set at the longest subdomain is the one to use
-        let split = name.split('.')
-        let resolver
-        while (split.length >= 2) {
-          let subdomain = split.join('.')
-          let hash = await _utils.nameHash(subdomain)
-          try {
-            resolver = await provider.getResolver(domain.hash, hash)
-            break
-          } catch (err) {}
-          split = split.slice(1)
-        }
-
-        if (!resolver) throw "No resolver set"
-
-        // fetch the value
-        return await resolveMethod(resolver.resolver, resolver.datasetId, nameHash, key)
-      },
-    }
+    })
   }
 
-  // represents the hash of a Name in the system
-  const Hash = function (hash, provider) {
+  async init(_provider, _opts) {
     
-    // attempt to look up the hash from the API
-    const lookup = async () => {
-      let signal
+    const _avvy = this
+
+    // optionally pass chainId
+    const opts = _opts || {}
+    const chainId = opts.chainId || 43114
+
+    // we'll support ethers for now. later,
+    // we can add support for web3
+    ethersProvider(_provider, chainId, {
+      ethers: opts.ethers
+    }).then((provider) => {
+
+      // set provider
+      this._promises.provider.resolve(provider)
+
+      // set contracts
+      this._promises.contracts.resolve(provider.contracts)
+
+      // configure batching
+      if (opts.batchJsonRpc && opts.fetchJson) {
+        _avvy.batchExecutor = JsonBatchExecutor(opts.fetchJson, opts.batchJsonRpc)
+      } else {
+        _avvy.batchExecutor = MulticallBatchExecutor(provider)
+      }
+    })
+
+    // pre-cache hash for "avax" TLD
+    const providerPoseidonCache = {
+      '0': {
+        '2019653217': {
+          '0': 4272832630669137235923015693490068373911885005413996126751674003559469537065n
+        }
+      }
+    }
+    let providerPoseidonCacheSize = 1
+    const providerPoseidon = async (num) => {
+      const n1 = num[0].toString()
+      const n2 = num[1].toString()
+      const n3 = num[2].toString()
+      if ((n1 in providerPoseidonCache)
+          && (n2 in providerPoseidonCache[n1])
+          && (n3 in providerPoseidonCache[n1][n2])) {
+        return providerPoseidonCache[n1][n2][n3]
+      }
+      const provider = await this.provider
+      const bignum = await provider.poseidon(num)
+      const result = bignum._isBigNumber ? bignum.toBigInt() : bignum
+      if (!(n1 in providerPoseidonCache)) providerPoseidonCache[n1] = {}
+      if (!(n2 in providerPoseidonCache[n1])) providerPoseidonCache[n1][n2] = {}
+      providerPoseidonCache[n1][n2][n3] = result
+      providerPoseidonCacheSize += 1
+      return result
+    }
+    const _utils = utils(opts.poseidon || providerPoseidon)
+
+    // represents a Name in the system
+    const Name = function (name) {
+
+      // lowercase the name. if someone passes in NAME.avax
+      // that is equivalent to name.avax
+      name = name.toLowerCase()
+
+      // the namespace is the first label of a name
+      const getNamespace = async () => {
+        await _avvy.ready 
+        const split = name.split('.')
+        split.reverse()
+        const namespace = split[0]
+        const hash = await _utils.nameHash(namespace)
+        return {
+          namespace,
+          hash
+        }
+      }
+
+      // the domain is the first two labels of the name (namespace, and the next label)
+      const getDomain = async () => {
+        await _avvy.ready
+        const split = name.split('.')
+        split.reverse()
+        const _domain = split.slice(0, 2)
+        _domain.reverse()
+        const domain = _domain.join('.')
+        const hash = await _utils.nameHash(domain)
+        return {
+          domain,
+          hash
+        }
+      }
+
+      return {
+        name,
+        resolve: async (key) => {
+          await _avvy.ready
+          let resolveMethod
+          let provider = await _avvy.provider
+          
+          // standard keys are numeric
+          if (typeof key == 'number') {
+            if (records._standardKeyList.indexOf(key) === -1) {
+              throw `Unknown numeric key ${key} passed to resolve(). If you wish to use a custom key, pass a string.`
+            }
+            resolveMethod = provider.resolveStandard
+          } 
+          
+          // custom keys are strings
+          else if (typeof key === 'string') {
+            resolveMethod = provider.resolve
+          }
+
+          else {
+            throw "Unknown key type passed to resolve()"
+          }
+
+          let domain = await getDomain() // this is the domain with 2 labels, e.g. name.avax
+          let nameHash = await _utils.nameHash(name)
+          let expiresAt = await provider.getExpiry(domain.hash)
+          if (expiresAt === 0) {
+            throw "Domain has not been registered"
+          }
+          const now = parseInt(Date.now() / 1000)
+          if (now >= expiresAt) {
+            throw "Domain registration is expired"
+          }
+
+          // find the active resolver
+          // for a name aaa.bbb.ccc.avax, we must
+          // check for a resolver set at:
+          // - aaa.bbb.ccc.avax
+          // - bbb.ccc.avax
+          // - ccc.avax
+          // the resolver set at the longest subdomain is the one to use
+          let split = name.split('.')
+          let resolver
+          while (split.length >= 2) {
+            let subdomain = split.join('.')
+            let hash = await _utils.nameHash(subdomain)
+            try {
+              resolver = await provider.getResolver(domain.hash, hash)
+              break
+            } catch (err) {}
+            split = split.slice(1)
+          }
+
+          if (!resolver) throw "No resolver set"
+
+          // fetch the value
+          return await resolveMethod(resolver.resolver, resolver.datasetId, nameHash, key)
+        },
+      }
+    }
+
+    // represents the hash of a Name in the system
+    const Hash = function (hash) {
+      
+      // attempt to look up the hash from the API
+      const lookup = async () => {
+        let provider = await _avvy.provider
+        let signal
+        try {
+          signal = await provider.lookupHash(hash)
+        } catch (err) {
+          // hash not revealed
+          return null
+        }
+        const preimage = await _utils.decodeNameHashInputSignals(signal)
+        return Name(preimage)
+      }
+
+      return {
+        hash,
+        lookup,
+      }
+    }
+
+    const name = (n) => {
+      return Name(n)
+    }
+
+    const hash = (h) => {
+      return Hash(h)
+    }
+
+    const batch = (items) => {
+      const reverse = async (key) => {
+        let provider = await _avvy.provider
+        return await provider.reverseResolveEVMBatch(this.batchExecutor, key, items)
+      }
+
+      const reverseToNames = async (key) => {
+        let provider = await _avvy.provider
+        const signals = await provider.reverseResolveEVMBatchToNames(this.batchExecutor, items)
+        const decoded = []
+        for (let i = 0; i < signals.length; i += 1) {
+          if (signals[i].length === 0 || signals[0] === null) {
+            decoded.push(null)
+          } else {
+            decoded.push(await _utils.decodeNameHashInputSignals(signals[i]))
+          }
+        }
+        return decoded
+      }
+
+      const lookup = async () => {
+        let provider = await _avvy.provider
+        const lookupResults = await provider.lookupHashBatch(this.batchExecutor, items)
+        const decoded = []
+        for (let i = 0; i < lookupResults.length; i += 1) {
+          if (lookupResults[i] === null) {
+            decoded.push(null)
+          } else {
+            decoded.push(await _utils.decodeNameHashInputSignals(lookupResults[i]))
+          }
+        }
+        return decoded
+      }
+
+      return {
+        lookup,
+        reverse,
+        reverseToNames,
+      }
+    }
+
+    const reverse = async (key, value) => {
+      let method
+      let provider = await _avvy.provider
+      switch (key) {
+        case records.EVM:
+          method = provider.reverseResolveEVM
+          break
+      }
+      if (!method) throw "Reverse resolver is not implemented for this standard key"
+      let result
       try {
-        signal = await provider.lookupHash(hash)
+        result = await method(key, value)
       } catch (err) {
-        // hash not revealed
-        return null
+       return null
       }
-      const preimage = await _utils.decodeNameHashInputSignals(signal)
-      return Name(preimage, provider)
+      return Hash(result.hash)
     }
-
-    return {
-      hash,
-      lookup,
-    }
-  }
-
-
-  const name = (n) => {
-    return Name(n, provider)
-  }
-
-  const hash = (h) => {
-    return Hash(h, provider)
-  }
-
-  const batch = (items) => {
-    if (!batchExecutor) throw "Batch execution is not configured. Please set batchJsonRpc."
-    const reverse = async (key) => {
-      return await provider.reverseResolveEVMBatch(batchExecutor, key, items)
-    }
-
-    const reverseToNames = async (key) => {
-      const signals = await provider.reverseResolveEVMBatchToNames(batchExecutor, items)
-      const decoded = []
-      for (let i = 0; i < signals.length; i += 1) {
-        if (signals[i].length === 0 || signals[0] === null) {
-          decoded.push(null)
-        } else {
-          decoded.push(await _utils.decodeNameHashInputSignals(signals[i]))
-        }
-      }
-      return decoded
-    }
-
-    const lookup = async () => {
-      const lookupResults = await provider.lookupHashBatch(batchExecutor, items)
-      const decoded = []
-      for (let i = 0; i < lookupResults.length; i += 1) {
-        if (lookupResults[i] === null) {
-          decoded.push(null)
-        } else {
-          decoded.push(await _utils.decodeNameHashInputSignals(lookupResults[i]))
-        }
-      }
-      return decoded
-    }
-
-    return {
-      lookup,
-      reverse,
-      reverseToNames,
-    }
-  }
-
-  const reverse = async (key, value) => {
-    let method
-    switch (key) {
-      case records.EVM:
-        method = provider.reverseResolveEVM
-        break
-    }
-    if (!method) throw "Reverse resolver is not implemented for this standard key"
-    let result
-    try {
-      result = await method(key, value)
-    } catch (err) {
-     return null
-    }
-    return Hash(result.hash, provider)
-  }
-  
-  return {
-    name,
-    hash,
-    reverse,
-    batch,
-    contracts: provider.contracts,
-
-    utils: _utils,
-    RECORDS: records,
+    
+    this.name = name
+    this.hash = hash
+    this.reverse = reverse
+    this.batch = batch
+    this.utils = _utils
   }
 }
 

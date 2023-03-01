@@ -185,7 +185,21 @@ const avvy = new AVVY(provider, {
 
 ## Accessing contracts directly
 
-After you have initialized `const avvy = new AVVY(provider)`, all contracts are available as `ethers.Contract` instances in `avvy.contracts`.
+```javascript
+import AVVY from '@avvy/client'
+import { ethers } from 'ethers'
+
+const main = async () => {
+  const PROVIDER_URL = 'https://api.avax.network/ext/bc/C/rpc'
+  const provider = new ethers.providers.JsonRpcProvider(PROVIDER_URL)
+  const avvy = new AVVY(provider)
+
+  // contracts are available here as ethers.Contract instances
+  const contracts = await avvy.contracts
+}
+
+main()
+```
 
 
 # Development
