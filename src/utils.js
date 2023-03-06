@@ -185,6 +185,14 @@ function utils(poseidonFunc) {
     return arr.join('.')
   }
 
+  const generateNameAndPath = async (domain) => {
+    const name = await nameHash(domain)
+    const inputSignals = await encodeNameHashInputSignals(domain)
+    return {
+      name,
+      path: inputSignals.slice(4)
+    }
+  }
 
   return {
     num2Bits,
@@ -196,6 +204,7 @@ function utils(poseidonFunc) {
     nameHashIteration,
     encodeNameHashInputSignals,
     decodeNameHashInputSignals,
+    generateNameAndPath
   }
 }
 

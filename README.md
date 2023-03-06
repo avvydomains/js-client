@@ -161,6 +161,13 @@ The preimage of the hash is stored as an array of large integers which can be in
 - To convert a name to input signals, use `inputSignals = avvy.utils.encodeNameHashInputSignals('name.avax')`
 - To convert input signals t oa name, use `name = avvy.utils.decodeNameHashInputSignals(inputSignals)`
 
+Resolver & reverse resolver contracts require `uint256 name, uint256[] memory path` arguments. You can generate those arguments using:
+
+```javascript
+const { name, path } = await avvy.utils.generateNameAndPath
+```
+
+
 ## Poseidon Hash Function
 
 This package uses a smart contract to perform hashing calculations. For Enhanced Privacy users, this means that the preimage of the domain gets leaked to the RPC node. For applications, this means that each hash calculation is a network call. We cache the results to reduce the number of network calls.
