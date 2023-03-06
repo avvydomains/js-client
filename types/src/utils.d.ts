@@ -9,4 +9,8 @@ declare function utils(poseidonFunc: any): {
     nameHashIteration: (prevHash: any, label: any) => Promise<any>;
     encodeNameHashInputSignals: (domain: any) => Promise<any[]>;
     decodeNameHashInputSignals: (inputSignals: any) => Promise<string>;
+    generateNameAndPath: (domain: any) => Promise<{
+        name: number;
+        path: any[];
+    }>;
 };

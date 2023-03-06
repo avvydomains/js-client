@@ -1,5 +1,12 @@
 export default AVVY;
-declare function AVVY(_provider: any, _opts: any): {
+declare class AVVY {
+    constructor(provider: any, opts: any);
+    provider: Promise<any>;
+    batchExecutor: any;
+    RECORDS: {};
+    _promises: {};
+    contracts: Promise<any>;
+    init(_provider: any, _opts: any): Promise<void>;
     name: (n: any) => {
         name: any;
         resolve: (key: any) => Promise<any>;
@@ -23,7 +30,6 @@ declare function AVVY(_provider: any, _opts: any): {
         reverse: (key: any) => Promise<any>;
         reverseToNames: (key: any) => Promise<string[]>;
     };
-    contracts: {};
     utils: {
         num2Bits: (inputNum: any, numBits: any) => any[];
         bits2Num: (inputBits: any) => bigint;
@@ -34,9 +40,12 @@ declare function AVVY(_provider: any, _opts: any): {
         nameHashIteration: (prevHash: any, label: any) => Promise<any>;
         encodeNameHashInputSignals: (domain: any) => Promise<any[]>;
         decodeNameHashInputSignals: (inputSignals: any) => Promise<string>;
+        generateNameAndPath: (domain: any) => Promise<{
+            name: number;
+            path: any[];
+        }>;
     };
-    RECORDS: {};
-};
+}
 declare namespace AVVY {
     export { records as RECORDS };
     export const providers: {
