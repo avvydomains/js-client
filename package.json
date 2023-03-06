@@ -11,9 +11,10 @@
   },
   "scripts": {
     "test": "npx mocha test/* --timeout 10000",
-    "test:ethers5": "npm run test -- --conditions=ethers5",
-    "test:ethers6": "npm run test -- --conditions=ethers6",
-    "test:all": "npm run test:ethers5 && npm run test:ethers6",
+    "test:ethers5": "ETH_LIB=ethers npm run test -- --conditions=ethers5",
+    "test:ethers6": "ETH_LIB=ethers npm run test -- --conditions=ethers6",
+    "test:web3": "ETH_LIB=web3 npm run test -- --conditions=web3",
+    "test:all": "npm run test:ethers5 && npm run test:ethers6 && npm run test:web3",
     "build": "rm -rf lib && rm -rf types && node build.js && npm run gentypes && npm run rollup",
     "prepare": "npm run build",
     "rollup": "npx rollup src/index.js --file index.cjs --format cjs",
@@ -22,7 +23,16 @@
   "author": "",
   "license": "ISC",
   "peerDependencies": {
-    "ethers": "^5.5.4 || ^6.0.5"
+    "ethers": "^5.5.4 || ^6.0.5",
+    "web3": "^1.8.2"
+  },
+  "peerDependenciesMeta": {
+    "ethers": {
+      "optional": true
+    },
+    "web3": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@types/node": "^18.7.15",

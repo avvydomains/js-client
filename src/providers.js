@@ -1,3 +1,5 @@
+// These functions are meant to wrap an ethers or a web3 provider to 
+// configure native resolution in those libraries.
 const providers = function (AVVY) {
   return {
     ethersProvider: function (provider, config) {

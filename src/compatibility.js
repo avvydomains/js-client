@@ -24,7 +24,7 @@ const compatibility = {
     staticCall: (contract, methodName, args) => {
       return compatibility.ethers._methodOperation(contract, methodName, 'staticCall', args)
     }
-  }
+  },
 }
 
 export default compatibility

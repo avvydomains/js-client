@@ -10,7 +10,7 @@ describe('Names', async () => {
   let provider
 
   beforeEach(async () => {
-    provider = await helpers.buildEthersProvider('JsonRpcProvider', ['http://localhost:8545'])
+    provider = await helpers.buildProvider('HTTP', 'http://localhost:8545')
     avvy = new AVVY(provider, {
       chainId: 31337
     })

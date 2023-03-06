@@ -29,7 +29,8 @@ const MulticallBatchExecutor = function (provider) {
       const ret = res.map(r => r.returnData)
 
       // fill null indexes
-      for (let i = 0; i < nullIndexes.length; i += 1) { ret.splice(nullIndexes[i], 0, null)
+      for (let i = 0; i < nullIndexes.length; i += 1) { 
+        ret.splice(nullIndexes[i], 0, null)
       }
       return ret
     }
@@ -61,6 +62,122 @@ const JsonBatchExecutor = function (fetchJson, jsonRpcUrl) {
         json.splice(nullIndexes[i], 0, null)
       }
       return json
+    }
+  }
+}
+
+const web3Provider = async function (provider, chainId) {
+  const contractLoader = await _contracts.web3Loader(provider, chainId)
+  const contracts = contractLoader.getContracts(provider, chainId)
+
+  return {
+    contracts,
+    getExpiry: async (hash) => {
+      const expiry = await contracts.Domain.getDomainExpiry(hash)
+      return parseInt(expiry.toString())
+    },
+    lookupHash: async (hash) => {
+      const result = await contracts.RainbowTableV1.lookup(hash)
+      return result
+    },
+    lookupHashBatch: async (batchExecutor, hashes) => {
+      const txs = []
+      for (let i = 0; i < hashes.length; i += 1) {
+        if (hashes[i] === null) {
+          txs.push(null)
+        } else {
+          txs.push(
+            await compatibility.ethers.populateTransaction(
+              contracts.RainbowTableV1,
+              'lookup',
+              [hashes[i]]
+            )
+          )
+        }
+      }
+      const results = (await batchExecutor.execute(txs)).map(res => {
+        try {
+          return contracts.RainbowTableV1.interface.decodeFunctionResult('lookup', res).preimage
+        } catch (error) {
+          return null
+        }
+      })
+      return results
+    },
+    getResolver: async (domain, hash) => {
+      const resolver = await contracts.ResolverRegistryV1.get(domain, hash)
+      return resolver
+    },
+    resolveStandard: async (resolverAddress, datasetId, hash, key) => {
+      const resolverContract = contractLoader.getResolverContract(resolverAddress)
+      const result = await resolverContract.resolveStandard(datasetId, hash, key)
+      return result
+    },
+    resolve: async (resolverAddress, datasetId, hash, key) => {
+      const resolverContract = contractLoader.getResolverContract(resolverAddress)
+      const result = await resolverContract.resolve(datasetId, hash, key)
+      return result
+    },
+    reverseResolveEVM: async (key, value) => {
+      const address = await contracts.ReverseResolverRegistryV1.getResolver(key)
+      const contract = contractLoader.getEVMReverseResolverContract(address)
+      return await contract.get(value)
+    },
+    reverseResolveEVMBatch: async (batchExecutor, key, values) => {
+      const address = await contracts.ReverseResolverRegistryV1.getResolver(key)
+      const contract = contractLoader.getEVMReverseResolverContract(address)
+      const txs = []
+      for (let i = 0; i < values.length; i += 1) {
+        txs.push(
+          await compatibility.ethers.populateTransaction(
+            contract,
+            'get',
+            [values[i]]
+          )
+        )
+      }
+      const results = (await batchExecutor.execute(txs)).map(res => {
+        if (res === null) {
+          return null
+        } else {
+          try {
+            return contract.interface.decodeFunctionResult('get', res).hash
+          } catch (error) {
+            return null
+          }
+        }
+      })
+      return results
+    },
+    reverseResolveEVMBatchToNames: async (batchExecutor, values) => {
+      const txs = []
+      for (let i = 0; i < values.length; i += 1) {
+        txs.push(
+          await compatibility.ethers.populateTransaction(
+            contracts.ResolutionUtilsV1,
+            'reverseResolveEVMToName',
+            [values[i]]
+          )
+        )
+      }
+      const results = (await batchExecutor.execute(txs)).map(res => {
+        if (res === null) {
+          return null
+        } else {
+          try {
+            return contracts.ResolutionUtilsV1.interface.decodeFunctionResult('reverseResolveEVMToName', res).preimage
+          } catch (error) {
+            return null
+          }
+        }
+      })
+      return results
+    },
+    getReverseResolverAddress: async (key) => {
+      return await contracts.ReverseResolverRegistryV1.getResolver(key)
+    },
+    poseidon: async (num) => {
+      return await contracts.Poseidon['poseidon(uint256[3])'](num)
     }
   }
 }
@@ -210,11 +327,15 @@ class AVVY {
     const opts = _opts || {}
     const chainId = opts.chainId || 43114
 
-    // we'll support ethers for now. later,
-    // we can add support for web3
-    ethersProvider(_provider, chainId, {
-      ethers: opts.ethers
-    }).then((provider) => {
+    // configure the provider
+    let providerInit
+    if (_provider.constructor.name === 'Web3') {
+      providerInit = web3Provider(_provider, chainId)
+    } else {
+      providerInit = ethersProvider(_provider, chainId)
+    }
+
+    providerInit.then((provider) => {
 
       // set provider
       this._promises.provider.resolve(provider)
