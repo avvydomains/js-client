@@ -71,6 +71,29 @@ const main = async () => {
 main()
 ```
 
+## Fetching User's Domains
+
+To retrieve domains for a given user's wallet, do the following:
+
+```javascript
+import AVVY from '@avvy/client'
+import { ethers } from 'ethers'
+
+const main = async () => {
+  const PROVIDER_URL = 'https://api.avax.network/ext/bc/C/rpc'
+  const provider = new ethers.providers.JsonRpcProvider(PROVIDER_URL)
+  const avvy = new AVVY(provider)
+
+  // to fetch the hashes held in the wallet
+  const domainHashes = await avvy.wallet('0x9BC4e7C1Fa4Ca66f6B2F4B6F446Dad80Ec541983').domains()
+
+  // to fetch the plaintext of the hashes
+  const domainNames = await avvy.batch(domainHashes).lookup()
+}
+
+main()
+```
+
 ## Batch Operations
 
 Batch operations rely on multicall by default. 

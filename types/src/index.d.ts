@@ -7,6 +7,9 @@ declare class AVVY {
     _promises: {};
     contracts: Promise<any>;
     init(_provider: any, _opts: any): Promise<void>;
+    wallet: (address: any) => {
+        domains: () => Promise<any>;
+    };
     name: (n: any) => {
         name: any;
         resolve: (key: any) => Promise<any>;
@@ -51,5 +54,15 @@ declare namespace AVVY {
     export const providers: {
         ethersProvider: (provider: any, config: any) => any;
     };
+    export namespace batchExecutors {
+        export { MulticallBatchExecutor };
+        export { JsonBatchExecutor };
+    }
 }
 import records from "./records.js";
+declare function MulticallBatchExecutor(provider: any): {
+    execute: (txs: any) => Promise<any>;
+};
+declare function JsonBatchExecutor(fetchJson: any, jsonRpcUrl: any): {
+    execute: (txs: any) => Promise<any>;
+};

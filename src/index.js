@@ -178,6 +178,31 @@ const web3Provider = async function (provider, chainId) {
     },
     poseidon: async (num) => {
       return await contracts.Poseidon['poseidon(uint256[3])'](num)
+    },
+    getDomainsForAddress: async (batchExecutor, address) => {
+      const count = await contracts.Domain.balanceOf(address)
+      const txs = []
+      for (let i = 0; i < parseInt(count.toString()); i += 1) {
+        txs.push(
+          await compatibility.ethers.populateTransaction(
+            contracts.Domain,
+            'tokenOfOwnerByIndex',
+            [address, i]
+          )
+        )
+      }
+      const results = (await batchExecutor.execute(txs)).map(res => {
+        if (res === null) {
+          return null
+        } else {
+          try {
+            return contracts.Domain.interface.decodeFunctionResult('tokenOfOwnerByIndex', res)[0]
+          } catch (error) {
+            return null
+          }
+        }
+      })
+      return results
     }
   }
 }
@@ -294,6 +319,31 @@ const ethersProvider = async function (provider, chainId) {
     },
     poseidon: async (num) => {
       return await contracts.Poseidon['poseidon(uint256[3])'](num)
+    },
+    getDomainsForAddress: async (batchExecutor, address) => {
+      const count = await contracts.Domain.balanceOf(address)
+      const txs = []
+      for (let i = 0; i < parseInt(count.toString()); i += 1) {
+        txs.push(
+          await compatibility.ethers.populateTransaction(
+            contracts.Domain,
+            'tokenOfOwnerByIndex',
+            [address, i]
+          )
+        )
+      }
+      const results = (await batchExecutor.execute(txs)).map(res => {
+        if (res === null) {
+          return null
+        } else {
+          try {
+            return contracts.Domain.interface.decodeFunctionResult('tokenOfOwnerByIndex', res)[0]
+          } catch (error) {
+            return null
+          }
+        }
+      })
+      return results
     }
   }
 }
@@ -566,7 +616,23 @@ class AVVY {
       }
       return Hash(result.hash)
     }
+
+    const Wallet = (address) => {
+      const domains = async () => {
+        let provider = await _avvy.provider
+        return await provider.getDomainsForAddress(this.batchExecutor, address)
+      }
+
+      return {
+        domains
+      }
+    }
+
+    const wallet = (address) => {
+      return Wallet(address)
+    }
     
+    this.wallet = wallet
     this.name = name
     this.hash = hash
     this.reverse = reverse
