@@ -577,5 +577,9 @@ class AVVY {
 
 AVVY.RECORDS = records
 AVVY.providers = providers(AVVY)
+AVVY.batchExecutors = {
+  MulticallBatchExecutor,
+  JsonBatchExecutor,
+}
 
 export default AVVY
