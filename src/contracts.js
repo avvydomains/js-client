@@ -57,87 +57,85 @@ function Web3ContractMethod(contract, abi, address) {
   return func
 }
 
-class Web3ContractAdapter {
-  constructor(provider, abi, address) {
-    this.contract = new provider.eth.Contract(
-      abi,
-      address
-    )
+function Web3ContractAdapter(provider, abi, address) {
+  this.contract = new provider.eth.Contract(
+    abi,
+    address
+  )
 
-    this.abi = abi
-    this.address = address
+  this.abi = abi
+  this.address = address
 
-    this.interface = {
-      decodeFunctionResult: (methodName, responseData) => {
-        const typesArray = this.__getTypesArray(methodName)
-        const getOutputNames = this.__getOutputNames(methodName)
-        const data = provider.eth.abi.decodeParameters(typesArray, responseData)
-        getOutputNames.forEach((output, index) => {
-          data[output] = data[index.toString()]
-        })
-        return data
-      }
-    }
-
-    abi.map((contractMethodAbi) => {
-      try {
-        let name
-        let contractMethod = Web3ContractMethod(this.contract, contractMethodAbi, address)
-
-        // if we already assigned a method with the same name,
-        // we need to treat it as overloaded
-        if (this[contractMethodAbi.name]) {
-          
-          // if the previous assignment was not overloaded, then we need to
-          // also treat the previous assignment as overloaded
-          if (this[contractMethodAbi.name] !== this.__multipleDefinitions) {
-            name = this.__getMethodNameWithArguments(this[contractMethodAbi.name].abi)
-            this[name] = this[contractMethodAbi.name]
-          }
-
-          // we need to set up the new assignment
-          name = this.__getMethodNameWithArguments(contractMethodAbi)
-          this[name] = contractMethod
-
-          // finally, set the method to throw an exception if
-          // the user attempts to call it directly without
-          // specifying the argument types
-          this[contractMethodAbi.name] = this.__multipleDefinitions
-        } else {
-          this[contractMethodAbi.name] = contractMethod
-        }
-      } catch (err) {
-        console.log(err)
-      }
-    })
-  }
-
-  __getABIForMethod = (methodName) => {
+  this.__getABIForMethod = (methodName) => {
     const nameWithArguments = this.__getMethodNameWithArguments(this[methodName].abi)
     const abi = this[nameWithArguments] ? this[nameWithArguments].abi : this[methodName].abi
     return abi
   }
 
-  __getTypesArray = (methodName) => {
+  this.__getTypesArray = (methodName) => {
     const abi = this.__getABIForMethod(methodName)
     return abi.outputs.map((output) => output.type)
   }
 
-  __getOutputNames = (methodName) => {
+  this.__getOutputNames = (methodName) => {
     const abi = this.__getABIForMethod(methodName)
     return abi.outputs.map((output) => output.name)
   }
 
-  __getMethodNameWithArguments = (methodAbi) => {
+  this.__getMethodNameWithArguments = (methodAbi) => {
     // returns the method name with arguments, as ethers
     // uses for overloaded functions
     const args = methodAbi.inputs.map((input) => input.type).join(',')
     return `${methodAbi.name}(${args})`
   }
 
-  __multipleDefinitions = () => {
+  this.__multipleDefinitions = () => {
     throw "This method has multiple definitions; access it like you would in ethers."
   }
+
+  this.interface = {
+    decodeFunctionResult: (methodName, responseData) => {
+      const typesArray = this.__getTypesArray(methodName)
+      const getOutputNames = this.__getOutputNames(methodName)
+      const data = provider.eth.abi.decodeParameters(typesArray, responseData)
+      getOutputNames.forEach((output, index) => {
+        data[output] = data[index.toString()]
+      })
+      return data
+    }
+  }
+
+  abi.map((contractMethodAbi) => {
+    try {
+      let name
+      let contractMethod = Web3ContractMethod(this.contract, contractMethodAbi, address)
+
+      // if we already assigned a method with the same name,
+      // we need to treat it as overloaded
+      if (this[contractMethodAbi.name]) {
+        
+        // if the previous assignment was not overloaded, then we need to
+        // also treat the previous assignment as overloaded
+        if (this[contractMethodAbi.name] !== this.__multipleDefinitions) {
+          name = this.__getMethodNameWithArguments(this[contractMethodAbi.name].abi)
+          this[name] = this[contractMethodAbi.name]
+        }
+
+        // we need to set up the new assignment
+        name = this.__getMethodNameWithArguments(contractMethodAbi)
+        this[name] = contractMethod
+
+        // finally, set the method to throw an exception if
+        // the user attempts to call it directly without
+        // specifying the argument types
+        this[contractMethodAbi.name] = this.__multipleDefinitions
+      } else {
+        this[contractMethodAbi.name] = contractMethod
+      }
+    } catch (err) {
+      console.log(err)
+    }
+  })
 }
 
 const web3Loader = async (provider, chainId) => {
