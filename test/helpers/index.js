@@ -2,7 +2,7 @@
 const funcs = {
   // returns ethers v5 / v6 depending on which test suite we're running.
   getEthers: async () => {
-    return await import('#ethers')
+    return await import('ethers')
   },
 
   // returns web3; future can return different versions

@@ -1,6 +1,6 @@
 {
   "name": "@avvy/client",
-  "version": "4.2.3",
+  "version": "4.2.4",
   "description": "",
   "main": "src/index.js",
   "type": "module",
@@ -10,11 +10,10 @@
     "url": "https://github.com/avvydomains/js-client.git"
   },
   "scripts": {
-    "test": "npx mocha test/* --timeout 10000",
-    "test:ethers4": "ETH_LIB=ethers npm run test -- --conditions=ethers4",
-    "test:ethers5": "ETH_LIB=ethers npm run test -- --conditions=ethers5",
-    "test:ethers6": "ETH_LIB=ethers npm run test -- --conditions=ethers6",
-    "test:web3": "ETH_LIB=web3 npm run test -- --conditions=web3",
+    "test": "npm run test:all",
+    "test:ethers5": "npm i --no-save ethers@5 && ETH_LIB=ethers npm run test",
+    "test:ethers6": "npm i --no-save ethers@6 && ETH_LIB=ethers npm run test",
+    "test:web3": "ETH_LIB=web3 npm run test",
     "test:all": "npm run test:ethers5 && npm run test:ethers6 && npm run test:web3",
     "build": "rm -rf lib && rm -rf types && node build.js && npm run gentypes && npm run rollup",
     "prepare": "npm run build",
@@ -41,19 +40,9 @@
     "chai": "^4.3.6",
     "circomlibjs": "git+https://github.com/avvydomains/circomlibjs.git#avvy-1.0.3",
     "eslint": "^8.34.0",
-    "ethers4": "npm:ethers@^4.0.39",
-    "ethers5": "npm:ethers@^5.5.4",
-    "ethers6": "npm:ethers@^6.0.5",
     "mocha": "^10.0.0",
     "rollup": "^3.3.0",
     "typescript": "^4.9.5"
-  },
-  "imports": {
-    "#ethers": {
-      "ethers6": "ethers6",
-      "ethers5": "ethers5",
-      "default": "ethers"
-    }
   },
   "exports": {
     ".": "./src/index.js",

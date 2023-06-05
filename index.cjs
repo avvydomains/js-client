@@ -4732,7 +4732,7 @@ var _contracts$1 = {
 
 const ethersLoader = async (signerOrProvider, chainId) => {
   if (!_contracts$1[chainId]) throw `Contracts not found for chainId ${chainId}`
-  const ethers = await import('#ethers');
+  const ethers = await import('ethers');
   const contractData = _contracts$1[chainId];
   const contracts = {};
   for (let key in contractData.contracts) {

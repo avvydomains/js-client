@@ -2,7 +2,7 @@ import _contracts from '../lib/contracts/index.js'
 
 const ethersLoader = async (signerOrProvider, chainId) => {
   if (!_contracts[chainId]) throw `Contracts not found for chainId ${chainId}`
-  const ethers = await import('#ethers')
+  const ethers = await import('ethers')
   const contractData = _contracts[chainId]
   const contracts = {}
   for (let key in contractData.contracts) {

@@ -5,8 +5,8 @@ declare namespace _default {
 export default _default;
 declare function ethersLoader(signerOrProvider: any, chainId: any): Promise<{
     getContracts: () => {};
-    getResolverContract: (address: any) => any;
-    getEVMReverseResolverContract: (address: any) => any;
+    getResolverContract: (address: any) => import("ethers").Contract;
+    getEVMReverseResolverContract: (address: any) => import("ethers").Contract;
 }>;
 declare function web3Loader(provider: any, chainId: any): Promise<{
     getContracts: () => {};
